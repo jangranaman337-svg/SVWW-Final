@@ -1,0 +1,281 @@
+index.html
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shri Vishwakarma Wood Works - Gallery & Portfolio</title>
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- 🔥 FIREBASE SDK - Add your Firebase config here -->
+    <!-- Uncomment and add your Firebase config when ready -->
+    
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+    <script>
+        // Your Firebase configuration
+        const firebaseConfig = {
+  apiKey: "AIzaSyBPoDdga8BN1sQ0n1XjUsoY6Uu-PO7VoQI",
+  authDomain: "vishwakarma-wood-works.firebaseapp.com",
+  projectId: "vishwakarma-wood-works",
+  storageBucket: "vishwakarma-wood-works.firebasestorage.app",
+  messagingSenderId: "51285594561",
+  appId: "1:51285594561:web:a28b65f77fb7797b4a1f40"
+};
+        // Initialize Firebase
+        firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
+        const auth = firebase.auth();
+    </script>
+</head>
+<body>
+    <!-- Header -->
+    <header id="header">
+        <div class="container header-content">
+            <a href="#" class="logo" onclick="handleLogoClick(); return false;">
+                <svg class="hammer-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/>
+                </svg>
+                <span class="logo-text">Shri Vishwakarma Wood Works</span>
+            </a>
+            <nav>
+                <a href="#" class="nav-link">Gallery</a>
+            </nav>
+            <a href="#" class="pinned-link" onclick="showPinnedDesigns(); return false;">
+                <svg class="icon" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                    <path d="M12 17v5m-7-5l7-7 7 7m-7-7v-5l-3 1v5z"/>
+                </svg>
+                <span class="pinned-text">Pinned</span>
+                <span id="pinned-badge" class="badge hidden">0</span>
+            </a>
+        </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content">
+        <!-- Hero Banner -->
+        <section id="hero-banner" class="hero-section">
+            <div class="hero-overlay"></div>
+            <div class="container hero-content">
+                <h1 class="hero-title">Shri Vishwakarma Wood Works</h1>
+                <p class="hero-subtitle">You Think, We Build</p>
+            </div>
+        </section>
+
+        <!-- Category Filter -->
+        <section class="category-filter">
+            <div class="container">
+                <div id="category-buttons" class="category-scroll">
+                    <!-- Categories will be inserted here by JavaScript -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Previous Works Section -->
+        <section class="content-section">
+            <div class="container">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Our Previous Works</h2>
+                        <p class="section-subtitle">Real projects we've completed for our valued customers</p>
+                    </div>
+                    <button id="view-all-previous" class="btn btn-outline hidden" onclick="viewAllSection('previous-work')">
+                        View All <span id="previous-count"></span>
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div id="previous-works-grid" class="product-grid">
+                    <!-- Products will be inserted here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Inspirations Section -->
+        <section class="content-section bg-white">
+            <div class="container">
+                <div class="section-header">
+                    <div>
+                        <h2 class="section-title">Inspirations</h2>
+                        <p class="section-subtitle">Designs we can create for you - let us bring your vision to life</p>
+                    </div>
+                    <button id="view-all-inspirations" class="btn btn-outline hidden" onclick="viewAllSection('inspiration')">
+                        View All <span id="inspiration-count"></span>
+                        <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <polyline points="9 18 15 12 9 6"></polyline>
+                        </svg>
+                    </button>
+                </div>
+                <div id="inspirations-grid" class="product-grid">
+                    <!-- Products will be inserted here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <!-- About Section -->
+                <div>
+                    <h3 class="footer-title">Shri Vishwakarma Wood Works</h3>
+                    <p class="footer-text">Crafting premium wooden furniture with traditional craftsmanship and modern designs. Quality and customer satisfaction are our priorities.</p>
+                </div>
+
+                <!-- Contact Section -->
+                <div>
+                    <h3 class="footer-title">Contact Us</h3>
+                    <div class="footer-links">
+                        <a href="tel:+917082702447" class="footer-link">
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path>
+                            </svg>
+                            <span>+91 7082702447</span>
+                        </a>
+                        <a href="mailto:jangranaman337@gmail.com" class="footer-link">
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                                <polyline points="22,6 12,13 2,6"></polyline>
+                            </svg>
+                            <span>jangranaman337@gmail.com</span>
+                        </a>
+                        <a href="https://maps.app.goo.gl/Dn8Dgt9fHRQPq3QDA" target="_blank" class="footer-link">
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                                <circle cx="12" cy="10" r="3"></circle>
+                            </svg>
+                            <span>Songal, Kaithal - Haryana, 136027</span>
+                        </a>
+                        <a href="https://www.instagram.com/shrivishwakarmawoodworks" target="_blank" class="footer-link">
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
+                                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
+                                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
+                            </svg>
+                            <span>Follow us on Instagram</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Quick Links -->
+                <div>
+                    <h3 class="footer-title">Quick Links</h3>
+                    <div class="footer-links">
+                        <a href="#" class="footer-link">Gallery</a>
+                        <a href="#" onclick="showPinnedDesigns(); return false;" class="footer-link">Pinned Designs</a>
+                        <button onclick="openFeedbackModal()" class="footer-link btn-link">
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                            </svg>
+                            Send Feedback
+                        </button>
+                        <button onclick="openAdminModal()" class="footer-link btn-link">
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+                                <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+                            </svg>
+                            Admin Panel
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; <span id="current-year"></span> Shri Vishwakarma Wood Works. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Admin Modal -->
+    <div id="admin-modal" class="modal hidden">
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2 id="admin-title">Admin Access</h2>
+                <button onclick="closeAdminModal()" class="close-btn">&times;</button>
+            </div>
+            <div id="admin-body" class="modal-body">
+                <!-- Admin content will be inserted here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Feedback Modal -->
+    <div id="feedback-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-header-content">
+                    <div class="modal-icon">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+                        </svg>
+                    </div>
+                    <div>
+                        <h2>Share Your Feedback</h2>
+                        <p>We'd love to hear from you!</p>
+                    </div>
+                </div>
+                <button onclick="closeFeedbackModal()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="feedback-form" onsubmit="submitFeedback(event)">
+                    <div class="form-group">
+                        <label>Name *</label>
+                        <input type="text" id="feedback-name" required placeholder="Your name">
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Email *</label>
+                            <input type="email" id="feedback-email" required placeholder="your.email@example.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Phone *</label>
+                            <input type="tel" id="feedback-phone" required placeholder="+91 XXXXX XXXXX">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Message *</label>
+                        <textarea id="feedback-message" required rows="5" placeholder="Tell us what you think or ask about any design..."></textarea>
+                    </div>
+                    <div class="form-actions">
+                        <button type="submit" class="btn btn-primary">
+                            <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                                <line x1="22" y1="2" x2="11" y2="13"></line>
+                                <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                            </svg>
+                            Send Feedback
+                        </button>
+                        <button type="button" class="btn btn-outline" onclick="closeFeedbackModal()">Cancel</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Image Viewer Modal -->
+    <div id="image-viewer-modal" class="modal hidden">
+        <div class="image-viewer-content">
+            <div class="image-viewer-header">
+                <h3 id="image-viewer-title"></h3>
+                <div class="image-viewer-controls">
+                    <button onclick="zoomImage('out')" class="icon-btn" title="Zoom Out">−</button>
+                    <span id="zoom-level">100%</span>
+                    <button onclick="zoomImage('in')" class="icon-btn" title="Zoom In">+</button>
+                    <button onclick="downloadImage()" class="icon-btn" title="Download">⬇</button>
+                    <button onclick="closeImageViewer()" class="close-btn">&times;</button>
+                </div>
+            </div>
+            <div class="image-viewer-body">
+                <img id="viewer-image" src="" alt="">
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notifications -->
+    <div id="toast-container"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
