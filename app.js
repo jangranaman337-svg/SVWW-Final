@@ -5,13 +5,14 @@
 
 
 // Check if Firebase is available
-const useFirebase = typeof firebase !== 'undefined';
+/*const useFirebase = typeof firebase !== 'undefined';
 
 if (useFirebase) {
     console.log('✅ Firebase is connected');
 } else {
     console.log('⚠️  Firebase not configured - using localStorage only');
 }
+*/
 
 
 const useFirebase = true; // Change to true when Firebase is configured
