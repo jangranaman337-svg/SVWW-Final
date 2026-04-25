@@ -872,17 +872,6 @@ function showAddProductForm() {
         Example: https://i.ibb.co/abcd123/bed.jpg
     </p>
 </div>
-
-                /*<div class="form-group">
-                    <label>Product Image *</label>
-                    <p style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem;">Supports 4K images and all common formats</p>
-                    <div id="image-preview" style="margin-bottom: 0.75rem; display: none;">
-                        <img src="" alt="Preview" style="width: 100px; height: 100px; object-fit: cover; border-radius: 0.5rem; border: 1px solid var(--border);">
-                    </div>
-                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'product')" style="margin-bottom: 0.5rem;">
-                    <div style="text-align: center; margin: 0.5rem 0; color: var(--text-light); font-size: 0.875rem;">OR</div>
-                    <input type="text" name="image" placeholder="Enter image URL (https://...)" onchange="updateImagePreview(this.value)">
-                </div>*/
                 <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" name="mostLiked" style="width: auto; min-height: auto;">
