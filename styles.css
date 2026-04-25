@@ -990,6 +990,11 @@ nav {
     }
 }
 
+#image-preview {
+    max-height: 300px;
+    object-fit: contain;
+}
+
 .admin-tab.active {
     color: var(--primary);
     border-bottom-color: var(--primary);
