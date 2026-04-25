@@ -889,7 +889,7 @@ function showAddProductForm() {
     `;
 }
 
-function handleImageUpload(event, type) {
+/*function handleImageUpload(event, type) {
     const file = event.target.files[0];
     if (!file) return;
     
@@ -917,9 +917,9 @@ function handleImageUpload(event, type) {
     };
     
     reader.readAsDataURL(file);
-}
+}*/
 
-function updateImagePreview(url) {
+/*function updateImagePreview(url) {
     const preview = document.getElementById('image-preview');
     if (url) {
         preview.style.display = 'block';
@@ -927,7 +927,7 @@ function updateImagePreview(url) {
     } else {
         preview.style.display = 'none';
     }
-}
+}*/
 
 async function saveProduct(event) {
     event.preventDefault();
@@ -1003,16 +1003,22 @@ function editProduct(id) {
                     <textarea name="description" required rows="3">${product.description}</textarea>
                 </div>
                 <div class="form-group">
-                    <label>Product Image *</label>
-                    <p style="font-size: 0.875rem; color: var(--text-light); margin-bottom: 0.5rem;">Supports 4K images and all common formats</p>
-                    <div id="image-preview" style="margin-bottom: 0.75rem;">
-                        <img src="${product.image}" alt="Preview" style="width: 100px; height: 100px; object-fit: cover; border-radius: 0.5rem; border: 1px solid var(--border);">
-                    </div>
-                    <input type="file" accept="image/*" onchange="handleImageUpload(event, 'product')" style="margin-bottom: 0.5rem;">
-                    <div style="text-align: center; margin: 0.5rem 0; color: var(--text-light); font-size: 0.875rem;">OR</div>
-                    <input type="text" name="image" value="${product.image}" placeholder="Enter image URL (https://...)" onchange="updateImagePreview(this.value)">
-                </div>
-                <div class="form-group">c:\Users\naman-n\AppData\Local\Packages\MicrosoftWindows.Client.CBS_cw5n1h2txyewy\TempState\ScreenClip\{3EB3B25B-1A5A-4504-AAC5-D43811F62619}.png
+    <label>Product Image URL *</label>
+
+    <input
+        type="text"
+        name="image"
+        value="${product.image}"
+        placeholder="Paste direct image URL (ImgBB)"
+        required
+    >
+
+    <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem;">
+        Example: https://i.ibb.co/abcd123/bed.jpg
+    </p>
+</div>
+
+                <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" name="mostLiked" ${product.mostLiked ? 'checked' : ''} style="width: auto; min-height: auto;">
                         <span>Mark as Most Liked</span>
