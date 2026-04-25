@@ -20,7 +20,7 @@ const useFirebase = true; // Change to true when Firebase is configured
 // CONFIGURATION & CONSTANTS
 // ================================
 
-const ADMIN_PASSWORD = "#@Naman1199";
+
 const DEFAULT_BANNER = "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1600&h=600&fit=crop";
 
 // ================================
@@ -263,46 +263,27 @@ async function loginWithFirebase(email, password) {
 
 // ✅ SECTION 6: Check Auth State
 function checkAuthState() {
-    if (!useFirebase) {
-        return;
-    }
-    
-    /* UNCOMMENT THIS WHEN FIREBASE AUTH IS READY:
-    
     auth.onAuthStateChanged((user) => {
         if (user) {
-            console.log('✅ User is signed in:', user.email);
+            console.log("✅ User is logged in:", user.email);
             isAdminAuthenticated = true;
         } else {
-            console.log('⚠️  User is signed out');
+            console.log("❌ User is logged out");
             isAdminAuthenticated = false;
         }
     });
-    
-    */
 }
 
 // ✅ SECTION 7: Admin Logout
 async function logoutFirebase() {
-    if (!useFirebase) {
-        isAdminAuthenticated = false;
-        return;
-    }
-    
-    /* UNCOMMENT THIS WHEN FIREBASE AUTH IS READY:
-    
     try {
         await auth.signOut();
-        console.log('✅ User signed out');
         isAdminAuthenticated = false;
         closeAdminModal();
         showToast('Logged out successfully', 'success');
-        
     } catch (error) {
-        console.error('❌ Logout error:', error);
+        console.error('Logout error:', error);
     }
-    
-    */
 }
 
 // ================================
@@ -661,63 +642,47 @@ function renderAdminLogin() {
     
     title.textContent = 'Admin Access';
     body.innerHTML = `
-        <form onsubmit="handleAdminLogin(event)" style="max-width: 400px; margin: 0 auto;">
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="admin-password" required placeholder="Enter admin password" autocomplete="off">
-            </div>
-            
-            <!-- 🔐 FIREBASE AUTH OPTION -->
-            <!-- Uncomment this section when Firebase Auth is configured -->
-            <!--
-            <div style="text-align: center; margin: 1rem 0; color: var(--text-light);">OR</div>
-            <div class="form-group">
-                <label>Email (Firebase Auth)</label>
-                <input type="email" id="admin-email" placeholder="admin@example.com">
-            </div>
-            <div class="form-group">
-                <label>Password</label>
-                <input type="password" id="admin-firebase-password" placeholder="Firebase password">
-            </div>
-            <button type="button" onclick="handleFirebaseLogin()" class="btn btn-outline" style="width: 100%; margin-bottom: 1rem;">Login with Firebase</button>
-            -->
-            
-            <button type="submit" class="btn btn-primary" style="width: 100%;">Login</button>
-        </form>
-    `;
+    <form onsubmit="handleFirebaseLogin(event)" style="max-width: 400px; margin: 0 auto;">
+        
+        <div class="form-group">
+            <label>Email</label>
+            <input type="email" id="admin-email" required placeholder="Enter admin email">
+        </div>
+ 
+        <div class="form-group">
+            <label>Password</label>
+            <input type="password" id="admin-password" required placeholder="Enter password">
+        </div>
+ 
+        <button type="submit" class="btn btn-primary" style="width: 100%;">
+            Login
+        </button>
+    </form>
+`;
 }
 
-function handleAdminLogin(event) {
+
+// 🔐 FIREBASE AUTH LOGIN HANDLER
+async function handleFirebaseLogin(event) {
     event.preventDefault();
+ 
+    const email = document.getElementById('admin-email').value;
     const password = document.getElementById('admin-password').value;
-    
-    if (password === ADMIN_PASSWORD) {
+ 
+    try {
+        const userCredential = await auth.signInWithEmailAndPassword(email, password);
+        const user = userCredential.user;
+ 
+        console.log("✅ Logged in:", user.email);
+ 
         isAdminAuthenticated = true;
         renderAdminPanel();
         showToast('Login successful', 'success');
-    } else {
-        showToast('Incorrect password!', 'error');
-        document.getElementById('admin-password').value = '';
-    }
-}
-
-// 🔐 FIREBASE AUTH LOGIN HANDLER
-async function handleFirebaseLogin() {
-    /* UNCOMMENT WHEN FIREBASE AUTH IS CONFIGURED:
-    
-    const email = document.getElementById('admin-email').value;
-    const password = document.getElementById('admin-firebase-password').value;
-    
-    const success = await loginWithFirebase(email, password);
-    
-    if (success) {
-        renderAdminPanel();
-        showToast('Login successful with Firebase', 'success');
-    } else {
+ 
+    } catch (error) {
+        console.error("❌ Login error:", error.message);
         showToast('Invalid email or password', 'error');
     }
-    
-    */
 }
 
 function renderAdminPanel() {
@@ -1346,3 +1311,4 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('📦 Products loaded:', products.length);
     console.log('📌 Pinned designs:', pinnedDesigns.length);
 });
+checkAuthState();
