@@ -872,6 +872,8 @@ function showAddProductForm() {
         Example: https://i.ibb.co/abcd123/bed.jpg
     </p>
 </div>
+
+            
                 <div class="form-group">
                     <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
                         <input type="checkbox" name="mostLiked" style="width: auto; min-height: auto;">
