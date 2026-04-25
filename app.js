@@ -37,10 +37,10 @@ let currentZoom = 100;
 let isAdminAuthenticated = false;
 
 let selectedImageFile = null;
+let cropper = null;
  
 function handleImagePreview(event) {
     const file = event.target.files[0];
- 
     if (!file) return;
  
     if (!file.type.startsWith("image/")) {
@@ -53,6 +53,18 @@ function handleImagePreview(event) {
     const preview = document.getElementById("image-preview");
     preview.src = URL.createObjectURL(file);
     preview.style.display = "block";
+ 
+    // Destroy old cropper if exists
+    if (cropper) {
+        cropper.destroy();
+    }
+ 
+    // Initialize cropper
+    cropper = new Cropper(preview, {
+        aspectRatio: 4 / 3,
+        viewMode: 1,
+        autoCropArea: 1,
+    });
 }
 
 
@@ -869,8 +881,8 @@ function showAddProductForm() {
 </div>
  
 <div class="form-group">
-    <label>Preview</label>
-    <img id="image-preview" style="width: 100%; max-width: 300px; display: none; border-radius: 8px;" />
+    <label>Crop Image</label>
+    <img id="image-preview" style="max-width: 100%; display: none;" />
 </div>
 
             
@@ -942,9 +954,27 @@ if (!selectedImageFile) {
 }
  
 // 🔥 Upload image to ImgBB
-showToast("Uploading image...", "info");
+// 🔥 Check cropper
+if (!cropper) {
+    showToast("Please select and crop image", "error");
+    return;
+}
  
-const imageUrl = await uploadToImgBB(selectedImageFile);
+showToast("Processing image...", "info");
+ 
+// ✅ Get cropped canvas
+const canvas = cropper.getCroppedCanvas({
+    width: 800,
+    height: 600
+});
+ 
+// ✅ Convert to compressed blob
+const blob = await new Promise(resolve => {
+    canvas.toBlob(resolve, "image/jpeg", 0.7);
+});
+ 
+// ✅ Upload to ImgBB
+const imageUrl = await uploadToImgBB(blob);
     const productData = {
         name: formData.get('name'),
         description: formData.get('description'),
