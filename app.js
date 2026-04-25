@@ -19,7 +19,7 @@ const useFirebase = true; // Change to true when Firebase is configured
 // ================================
 // CONFIGURATION & CONSTANTS
 // ================================
-
+const IMGBB_API_KEY = "fa8bcd6d876fa88264839b2e06dbda86";
 
 const DEFAULT_BANNER = "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1600&h=600&fit=crop";
 
@@ -35,6 +35,45 @@ let bannerImage = localStorage.getItem('vishwakarma-banner') || DEFAULT_BANNER;
 let selectedCategory = 'All';
 let currentZoom = 100;
 let isAdminAuthenticated = false;
+
+let selectedImageFile = null;
+ 
+function handleImagePreview(event) {
+    const file = event.target.files[0];
+ 
+    if (!file) return;
+ 
+    if (!file.type.startsWith("image/")) {
+        showToast("Select a valid image", "error");
+        return;
+    }
+ 
+    selectedImageFile = file;
+ 
+    const preview = document.getElementById("image-preview");
+    preview.src = URL.createObjectURL(file);
+    preview.style.display = "block";
+}
+
+
+async function uploadToImgBB(file) {
+    const formData = new FormData();
+    formData.append("image", file);
+ 
+    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+        method: "POST",
+        body: formData
+    });
+ 
+    const data = await response.json();
+ 
+    if (data.success) {
+        return data.data.url;
+    } else {
+        console.error(data);
+        throw new Error("Image upload failed");
+    }
+}
 
 // Default products
 function getDefaultProducts() {
@@ -824,18 +863,14 @@ function showAddProductForm() {
                     <textarea name="description" required rows="3"></textarea>
                 </div>
                 <div class="form-group">
-    <label>Product Image URL *</label>
-
-    <input
-        type="text"
-        name="image"
-        placeholder="Paste direct image URL (ImgBB)"
-        required
-    >
-
-    <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem;">
-        Example: https://i.ibb.co/abcd123/bed.jpg
-    </p>
+    <div class="form-group">
+    <label>Upload Image *</label>
+    <input type="file" id="image-input" accept="image/*" required onchange="handleImagePreview(event)">
+</div>
+ 
+<div class="form-group">
+    <label>Preview</label>
+    <img id="image-preview" style="width: 100%; max-width: 300px; display: none; border-radius: 8px;" />
 </div>
 
             
@@ -853,6 +888,8 @@ function showAddProductForm() {
         </div>
     `;
 }
+
+
 
 /*function handleImageUpload(event, type) {
     const file = event.target.files[0];
@@ -898,13 +935,22 @@ async function saveProduct(event) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
-    
+    // 🔥 Check if image selected
+if (!selectedImageFile) {
+    showToast("Please upload an image", "error");
+    return;
+}
+ 
+// 🔥 Upload image to ImgBB
+showToast("Uploading image...", "info");
+ 
+const imageUrl = await uploadToImgBB(selectedImageFile);
     const productData = {
         name: formData.get('name'),
         description: formData.get('description'),
         price: parseInt(formData.get('price')),
         category: formData.get('category'),
-        image: formData.get('image'),
+        image: imageUrl,
         type: formData.get('type'),
         mostLiked: formData.get('mostLiked') === 'on'
     };
