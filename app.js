@@ -38,6 +38,11 @@ let isAdminAuthenticated = false;
 
 let selectedImageFile = null;
 let cropper = null;
+function zoomImage(value) {
+    if (cropper) {
+        cropper.zoom(value);
+    }
+}
  
 function handleImagePreview(event) {
     const file = event.target.files[0];
@@ -61,10 +66,15 @@ function handleImagePreview(event) {
  
     // Initialize cropper
     cropper = new Cropper(preview, {
-        aspectRatio: 4 / 3,
-        viewMode: 1,
-        autoCropArea: 1,
-    });
+    aspectRatio: 4 / 3,
+    viewMode: 1,
+    autoCropArea: 1,
+    responsive: true,
+    background: false,
+    zoomable: true,
+    movable: true,
+    scalable: false,
+});
 }
 
 
@@ -882,8 +892,17 @@ function showAddProductForm() {
  
 <div class="form-group">
     <label>Crop Image</label>
+ 
     <img id="image-preview" style="max-width: 100%; display: none;" />
+ 
+    <!-- 👇 ADD THIS HERE -->
+    <div style="margin-top: 10px; display: flex; gap: 10px;">
+        <button type="button" onclick="zoomImage(0.1)" class="btn btn-outline">Zoom +</button>
+        <button type="button" onclick="zoomImage(-0.1)" class="btn btn-outline">Zoom -</button>
+    </div>
 </div>
+
+
 
             
                 <div class="form-group">
@@ -996,7 +1015,7 @@ const imageUrl = await uploadToImgBB(blob);
             renderCategories();
             showToast('Product added successfully', 'success');
         }
-    } catch (error) {
+    } catch (error) { 
         console.error('Error saving product:', error);
     }
 }
