@@ -464,7 +464,7 @@ function createProductCard(product) {
     return `
         <div class="product-card" onclick="viewProduct('${product.id}')">
             <div class="product-image-container">
-                <img src="${product.image}" alt="${product.name}" class="product-image">
+                <img src="${product.thumbnail || product.image}" alt="${product.name}" class="product-image">
                 <div class="price-badge">₹${product.price.toLocaleString('en-IN')}</div>
                 <button 
                     class="pin-btn ${isPinned ? 'pinned' : ''}" 
@@ -684,9 +684,9 @@ function openAdminModal() {
     const modal = document.getElementById('admin-modal');
     modal.classList.remove('hidden');
     
-    if (!isAdminAuthenticated) {
+    if (!auth.currentUser){
         renderAdminLogin();
-    } else {
+    }else{
         renderAdminPanel();
     }
 }
@@ -818,7 +818,7 @@ function renderProductsTab(content) {
                 <tbody>
                     ${products.map(product => `
                         <tr>
-                            <td><img src="${product.image}" alt="${product.name}" onclick="openImageViewer('${product.image}', '${product.name}')"></td>
+                            <td><img src="${product.thumbnail || product.image}" alt="${product.name}" onclick="openImageViewer('${product.thumbnail || product.image}', '${product.name}')"></td>
                             <td>${product.name}</td>
                             <td>${product.category}</td>
                             <td><span class="type-badge ${product.type === 'previous-work' ? 'type-previous' : 'type-inspiration'}">${product.type === 'previous-work' ? 'Previous Work' : 'Inspiration'}</span></td>
@@ -971,53 +971,87 @@ if (!selectedImageFile) {
     showToast("Please upload an image", "error");
     return;
 }
- 
+
 // 🔥 Upload image to ImgBB
 // 🔥 Check cropper
-if (!cropper) {
-    showToast("Please select and crop image", "error");
-    return;
-}
+
  
 showToast("Processing image...", "info");
  
-// ✅ Get cropped canvas
-const canvas = cropper.getCroppedCanvas({
-    width: 800,
-    height: 600
-});
+// 🔹 Upload original image FIRST
+const originalUrl = await uploadToImgBB(selectedImageFile);
  
-// ✅ Convert to compressed blob
-const blob = await new Promise(resolve => {
-    canvas.toBlob(resolve, "image/jpeg", 0.7);
-});
+// 🔹 Default thumbnail = original
+let thumbnailUrl = originalUrl;
  
-// ✅ Upload to ImgBB
-const imageUrl = await uploadToImgBB(blob);
+// 🔹 Only crop IF cropper exists
+if (cropper) {
+    const canvas = cropper.getCroppedCanvas({
+        width: 800,
+        height: 600
+    });
+ 
+    const blob = await new Promise(resolve => {
+        canvas.toBlob(resolve, "image/jpeg", 0.7);
+    });
+ 
+    thumbnailUrl = await uploadToImgBB(blob);
+}
+ 
+// 🔹 If cropper exists → create cropped version
+if (cropper) {
+    const canvas = cropper.getCroppedCanvas({
+        width: 800,
+        height: 600
+    });
+ 
+    const blob = await new Promise(resolve => {
+        canvas.toBlob(resolve, "image/jpeg", 0.7);
+    });
+ 
+    thumbnailUrl = await uploadToImgBB(blob);
+}
     const productData = {
         name: formData.get('name'),
         description: formData.get('description'),
         price: parseInt(formData.get('price')),
         category: formData.get('category'),
-        image: imageUrl,
+        image: originalUrl,
+        thumbnail: thumbnailUrl,
         type: formData.get('type'),
         mostLiked: formData.get('mostLiked') === 'on'
     };
     
     // 🔥 Use Firebase or localStorage
-    try {
-        await addProductToFirestore(productData);
-        
-        // If not using Firebase, manually update UI
-        if (!useFirebase) {
-            renderProductsTab(document.getElementById('admin-content'));
-            renderProducts();
-            renderCategories();
-            showToast('Product added successfully', 'success');
-        }
-    } catch (error) { 
-        console.error('Error saving product:', error);
+   try {
+    await addProductToFirestore(productData);
+ 
+    if (!useFirebase) {
+        renderProductsTab(document.getElementById('admin-content'));
+        renderProducts();
+        renderCategories();
     }
+ 
+    showToast('Product added successfully', 'success');
+ 
+    // 🔥 ADD THIS BLOCK HERE
+    document.getElementById("product-form").reset();
+    selectedImageFile = null;
+ 
+    if (cropper) {
+        cropper.destroy();
+        cropper = null;
+    }
+ 
+    const preview = document.getElementById("image-preview");
+    if (preview) {
+        preview.src = "";
+        preview.style.display = "none";
+    }
+ 
+} catch (error) {
+    console.error('Error saving product:', error);
+}
 }
 
 function cancelProductForm() {
@@ -1179,7 +1213,7 @@ function renderMostLikedTab(content) {
             ${mostLiked.map(product => `
                 <div class="product-card">
                     <div class="product-image-container">
-                        <img src="${product.image}" alt="${product.name}" class="product-image" onclick="openImageViewer('${product.image}', '${product.name}')">
+                        <img src="${product.thumbnail || product.image}" alt="${product.name}" class="product-image" onclick="openImageViewer('${product.thumbnail || product.image}', '${product.name}')">
                         <div class="price-badge">₹${product.price.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="product-info">
@@ -1374,6 +1408,8 @@ function showToast(message, type = 'info') {
 // ================================
 
 document.addEventListener('DOMContentLoaded', () => {
+    checkAuthState();
+    loadProductsFromFirestore();
     console.log('🪵 Shri Vishwakarma Wood Works - Website Loaded');
     
     // Set current year in footer
@@ -1406,4 +1442,3 @@ document.addEventListener('DOMContentLoaded', () => {
     console.log('📦 Products loaded:', products.length);
     console.log('📌 Pinned designs:', pinnedDesigns.length);
 });
-checkAuthState();
