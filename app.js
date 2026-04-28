@@ -38,11 +38,7 @@ let isAdminAuthenticated = false;
 
 let selectedImageFile = null;
 let cropper = null;
-function zoomImage(value) {
-    if (cropper) {
-        cropper.zoom(value);
-    }
-}
+
  
 function handleImagePreview(event) {
     const file = event.target.files[0];
@@ -192,6 +188,10 @@ function loadProductsFromFirestore() {
         // Re-render UI
         renderCategories();
         renderProducts();
+        const adminContent = document.getElementById('admin-content');
+        if(adminContent){
+            renderProductsTab(adminContent);
+        }
         
         console.log('✅ Products synced from Firestore:', products.length);
     }, (error) => {
@@ -895,11 +895,6 @@ function showAddProductForm() {
  
     <img id="image-preview" style="max-width: 100%; display: none;" />
  
-    <!-- 👇 ADD THIS HERE -->
-    <div style="margin-top: 10px; display: flex; gap: 10px;">
-        <button type="button" onclick="zoomImage(0.1)" class="btn btn-outline">Zoom +</button>
-        <button type="button" onclick="zoomImage(-0.1)" class="btn btn-outline">Zoom -</button>
-    </div>
 </div>
 
 
@@ -966,6 +961,9 @@ async function saveProduct(event) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
+    const btn = form.querySelector("button[type='submit']");
+    btn.disabled = true;
+    btn.innerText = "saving..";
     // 🔥 Check if image selected
 if (!selectedImageFile) {
     showToast("Please upload an image", "error");
@@ -983,20 +981,6 @@ const originalUrl = await uploadToImgBB(selectedImageFile);
  
 // 🔹 Default thumbnail = original
 let thumbnailUrl = originalUrl;
- 
-// 🔹 Only crop IF cropper exists
-if (cropper) {
-    const canvas = cropper.getCroppedCanvas({
-        width: 800,
-        height: 600
-    });
- 
-    const blob = await new Promise(resolve => {
-        canvas.toBlob(resolve, "image/jpeg", 0.7);
-    });
- 
-    thumbnailUrl = await uploadToImgBB(blob);
-}
  
 // 🔹 If cropper exists → create cropped version
 if (cropper) {
@@ -1030,6 +1014,8 @@ if (cropper) {
         renderProductsTab(document.getElementById('admin-content'));
         renderProducts();
         renderCategories();
+        btn.disabled = false;
+        btn.innerText = "Save Product";
     }
  
     showToast('Product added successfully', 'success');
@@ -1051,6 +1037,8 @@ if (cropper) {
  
 } catch (error) {
     console.error('Error saving product:', error);
+    btn.disabled = false;
+    btn.innerText = "Save Product";
 }
 }
 
@@ -1099,14 +1087,10 @@ function editProduct(id) {
                 <div class="form-group">
     <label>Product Image URL *</label>
 
-    <input
-        type="text"
-        name="image"
-        value="${product.image}"
-        placeholder="Paste direct image URL (ImgBB)"
-        required
-    >
-
+    <input type = "file" accept = "image/*"
+    onchange = "handleImagePreview(event)">
+    <img src = "${product.image}" id="image-preview"
+    style="max-widht:100% margin-top:10px;">
     <p style="font-size: 0.75rem; color: var(--text-light); margin-top: 0.25rem;">
         Example: https://i.ibb.co/abcd123/bed.jpg
     </p>
@@ -1133,13 +1117,17 @@ async function updateProduct(event, id) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
+    let imageUrl = products.find(p =>p.id === id).image;
+    if(selectedImageFile){
+        imageUrl = await uploadToImgBB(selectedImageFile);
+    }
     
     const updates = {
         name: formData.get('name'),
         description: formData.get('description'),
         price: parseInt(formData.get('price')),
         category: formData.get('category'),
-        image: formData.get('image'),
+        image: imageUrl,
         type: formData.get('type'),
         mostLiked: formData.get('mostLiked') === 'on'
     };
@@ -1415,10 +1403,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Set current year in footer
     document.getElementById('current-year').textContent = new Date().getFullYear();
     
-    // Initialize Firebase (if configured)
-    loadProductsFromFirestore();
-    checkAuthState();
-    
+
     // Initialize UI
     updateBanner();
     renderCategories();
