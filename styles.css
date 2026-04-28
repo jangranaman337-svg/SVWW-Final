@@ -913,7 +913,7 @@ nav {
     font-size: 0.875rem;
     font-family: inherit;
     transition: all 0.2s;
-    min-height: 44px; /* Touch-friendly */
+    min-height: 44px; 
 }
 
 @media (min-width: 768px) {
