@@ -541,7 +541,34 @@ function viewProduct(productId) {
 }
 
 function viewAllSection(type) {
-    showToast(`View All ${type === 'previous-work' ? 'Previous Works' : 'Inspirations'} feature coming soon!`);
+    let filtered = products.filter(p => p.type === type);
+ 
+    if (selectedCategory !== 'All') {
+        filtered = filtered.filter(p => p.category === selectedCategory);
+    }
+ 
+    const modal = document.createElement('div');
+    modal.className = 'modal';
+ 
+    modal.innerHTML = `
+        <div class="modal-content modal-large">
+            <div class="modal-header">
+                <h2>${type === 'previous-work' ? 'All Previous Works' : 'All Inspirations'}</h2>
+                <button onclick="this.closest('.modal').remove()" class="close-btn">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="product-grid">
+                    ${filtered.map(p => createProductCard(p)).join('')}
+                </div>
+            </div>
+        </div>
+    `;
+ 
+    document.body.appendChild(modal);
+ 
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) modal.remove();
+    });
 }
 
 function showPinnedDesigns() {
@@ -691,12 +718,15 @@ function openAdminModal() {
     }
 }
 
-function closeAdminModal() {
+function closeAdminModal(){
     const modal = document.getElementById('admin-modal');
     modal.classList.add('hidden');
+    //Force Logout
+    if(auth.currentUser){
+        auth.signOut();
+    }
     isAdminAuthenticated = false;
 }
-
 function renderAdminLogin() {
     const title = document.getElementById('admin-title');
     const body = document.getElementById('admin-body');
