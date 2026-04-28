@@ -1437,7 +1437,7 @@ document.addEventListener('DOMContentLoaded', () => {
     renderProducts();
     updatePinnedBadge();
     
-    // Modal click outside to close
+    // Modal click outside to clos
     document.getElementById('admin-modal').addEventListener('click', (e) => {
         if (e.target.id === 'admin-modal') closeAdminModal();
     });
