@@ -498,8 +498,8 @@ nav {
 
 .price-badge {
     position: absolute;
-    top: 0.75rem;
-    right: 0.75rem;
+    bottom: 0.75rem;
+    left: 0.75rem;
     background: rgba(0, 0, 0, 0.8);
     color: white;
     padding: 0.375rem 0.75rem;
@@ -512,8 +512,8 @@ nav {
 /* PIN BUTTON - ALWAYS VISIBLE FOR MOBILE */
 .pin-btn {
     position: absolute;
-    top: 0.75rem;
-    left: 0.75rem;
+    bottom: 0.75rem;
+    right: 0.75rem;
     width: 36px;
     height: 36px;
     border-radius: 0.375rem;
