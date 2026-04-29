@@ -981,6 +981,8 @@ async function saveProduct(event) {
     // 🔥 Check if image selected
 if (!selectedImageFile) {
     showToast("Please upload an image", "error");
+    btn.disabled = false;
+    btn.innerText="SaveProduct";
     return;
 }
 
@@ -1006,7 +1008,7 @@ if (cropper) {
 }
  
 // 🔹 Default thumbnail = original
-let thumbnailUrl = originalUrl;
+let thumbnailUrl = imageUrlUrl;
  
 // 🔹 If cropper exists → create cropped version
 if (cropper) {
@@ -1019,15 +1021,13 @@ if (cropper) {
         canvas.toBlob(resolve, "image/jpeg", 0.7);
     });
  
-    thumbnailUrl = await uploadToImgBB(blob);
 }
     const productData = {
         name: formData.get('name'),
         description: formData.get('description'),
         price: parseInt(formData.get('price')),
         category: formData.get('category'),
-        image: originalUrl,
-        thumbnail: thumbnailUrl,
+        image: imageUrlUrl,
         type: formData.get('type'),
         mostLiked: formData.get('mostLiked') === 'on'
     };
