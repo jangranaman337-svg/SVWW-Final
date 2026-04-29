@@ -78,7 +78,7 @@ function handleImagePreview(event) {
 }
 async function uploadToFirebase(file) {
     try {
-        const fileName = `product-images/${Date.now()}_${file.name}`;
+        const fileName = `product-images/${Date.now()}.jpg`;
         const storageRef = storage.ref(fileName);
  
         const snapshot = await storageRef.put(file);
