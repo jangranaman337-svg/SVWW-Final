@@ -441,7 +441,7 @@ function createProductCard(product) {
     return `
         <div class="product-card" onclick="viewProduct('${product.id}')">
             <div class="product-image-container">
-                <img src="${product.thumbnail || product.image}" alt="${product.name}" class="product-image">
+                <img src="${product.image}" alt="${product.name}" class="product-image">
                 <div class="price-badge">₹${product.price.toLocaleString('en-IN')}</div>
                 <button 
                     class="pin-btn ${isPinned ? 'pinned' : ''}" 
@@ -832,7 +832,7 @@ function renderProductsTab(content) {
                 <tbody>
                     ${products.map(product => `
                         <tr>
-                            <td><img src="${product.thumbnail || product.image}" alt="${product.name}" onclick="openImageViewer('${product.thumbnail || product.image}', '${product.name}')"></td>
+                            <td><img src="${product.image}" alt="${product.name}" onclick="openImageViewer('${product.image}', '${product.name}')"></td>
                             <td>${product.name}</td>
                             <td>${product.category}</td>
                             <td><span class="type-badge ${product.type === 'previous-work' ? 'type-previous' : 'type-inspiration'}">${product.type === 'previous-work' ? 'Previous Work' : 'Inspiration'}</span></td>
@@ -973,99 +973,79 @@ function showAddProductForm() {
 
 async function saveProduct(event) {
     event.preventDefault();
+ 
     const form = event.target;
     const formData = new FormData(form);
     const btn = form.querySelector("button[type='submit']");
+ 
     btn.disabled = true;
-    btn.innerText = "saving..";
-    // 🔥 Check if image selected
-if (!selectedImageFile) {
-    showToast("Please upload an image", "error");
-    btn.disabled = false;
-    btn.innerText="SaveProduct";
-    return;
-}
-
-// 🔥 Upload image to ImgBB
-// 🔥 Check cropper
-
+    btn.innerText = "Saving...";
  
-showToast("Processing image...", "info");
+    try {
+        if (!selectedImageFile) {
+            throw new Error("No image selected");
+        }
  
-// 🔹 Upload original image FIRST
-let imageUrl = "";
+        showToast("Uploading image...", "info");
  
-if (cropper) {
-    const canvas = cropper.getCroppedCanvas({
-        width: 800,
-        height: 600
-    });
+        let imageUrl = "";
  
-    const blob = await new Promise(resolve => canvas.toBlob(resolve));
-    imageUrl = await uploadToFirebase(blob);
-} else {
-    imageUrl = await uploadToFirebase(selectedImageFile);
-}
+        if (cropper) {
+            const canvas = cropper.getCroppedCanvas({
+                width: 800,
+                height: 600
+            });
  
-// 🔹 Default thumbnail = original
-let thumbnailUrl = imageUrlUrl;
+            const blob = await new Promise((resolve, reject) => {
+                canvas.toBlob((b) => {
+                    if (!b) reject("Image processing failed");
+                    else resolve(b);
+                }, "image/jpeg", 0.8);
+            });
  
-// 🔹 If cropper exists → create cropped version
-if (cropper) {
-    const canvas = cropper.getCroppedCanvas({
-        width: 800,
-        height: 600
-    });
+            imageUrl = await uploadToFirebase(blob);
  
-    const blob = await new Promise(resolve => {
-        canvas.toBlob(resolve, "image/jpeg", 0.7);
-    });
+        } else {
+            imageUrl = await uploadToFirebase(selectedImageFile);
+        }
  
-}
-    const productData = {
-        name: formData.get('name'),
-        description: formData.get('description'),
-        price: parseInt(formData.get('price')),
-        category: formData.get('category'),
-        image: imageUrlUrl,
-        type: formData.get('type'),
-        mostLiked: formData.get('mostLiked') === 'on'
-    };
-    
-    // 🔥 Use Firebase or localStorage
-   try {
-    await addProductToFirestore(productData);
+        const productData = {
+            name: formData.get('name'),
+            description: formData.get('description'),
+            price: parseInt(formData.get('price')),
+            category: formData.get('category'),
+            image: imageUrl,
+            type: formData.get('type'),
+            mostLiked: formData.get('mostLiked') === 'on'
+        };
  
-    if (!useFirebase) {
-        renderProductsTab(document.getElementById('admin-content'));
-        renderProducts();
-        renderCategories();
+        await addProductToFirestore(productData);
+ 
+        showToast('Product added successfully', 'success');
+ 
+        // Reset form
+        form.reset();
+        selectedImageFile = null;
+ 
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+ 
+        const preview = document.getElementById("image-preview");
+        if (preview) {
+            preview.src = "";
+            preview.style.display = "none";
+        }
+ 
+    } catch (error) {
+        console.error("SAVE ERROR:", error);
+        showToast(error.message || "Something went wrong", "error");
+ 
+    } finally {
         btn.disabled = false;
         btn.innerText = "Save Product";
     }
- 
-    showToast('Product added successfully', 'success');
- 
-    // 🔥 ADD THIS BLOCK HERE
-    document.getElementById("product-form").reset();
-    selectedImageFile = null;
- 
-    if (cropper) {
-        cropper.destroy();
-        cropper = null;
-    }
- 
-    const preview = document.getElementById("image-preview");
-    if (preview) {
-        preview.src = "";
-        preview.style.display = "none";
-    }
- 
-} catch (error) {
-    console.error('Error saving product:', error);
-    btn.disabled = false;
-    btn.innerText = "Save Product";
-}
 }
 
 function cancelProductForm() {
@@ -1227,7 +1207,7 @@ function renderMostLikedTab(content) {
             ${mostLiked.map(product => `
                 <div class="product-card">
                     <div class="product-image-container">
-                        <img src="${product.thumbnail || product.image}" alt="${product.name}" class="product-image" onclick="openImageViewer('${product.thumbnail || product.image}', '${product.name}')">
+                        <img src="${product.image}" alt="${product.name}" class="product-image" onclick="openImageViewer('${product.image}', '${product.name}')">
                         <div class="price-badge">₹${product.price.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="product-info">
