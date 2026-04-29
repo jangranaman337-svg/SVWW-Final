@@ -48,10 +48,12 @@ function handleImagePreview(event) {
         showToast("Select a valid image", "error");
         return;
     }
+    
  
     selectedImageFile = file;
  
     const preview = document.getElementById("image-preview");
+    preview.src = URL.createObjectURL(file);
     preview.onload = ()=>{
         URL.revokeObjectURL(preview.src);
     }
@@ -990,24 +992,30 @@ async function saveProduct(event) {
  
         let imageUrl = "";
  
-        if (cropper) {
-            const canvas = cropper.getCroppedCanvas({
-                width: 800,
-                height: 600
-            });
+        if (cropper && cropper.getCroppedCanvas()) {
+    const canvas = cropper.getCroppedCanvas({
+        width: 800,
+        height: 600
+    });
  
-            const blob = await new Promise((resolve, reject) => {
-                canvas.toBlob((b) => {
-                    if (!b) reject("Image processing failed");
-                    else resolve(b);
-                }, "image/jpeg", 0.8);
-            });
- 
-            imageUrl = await uploadToFirebase(blob);
- 
-        } else {
-            imageUrl = await uploadToFirebase(selectedImageFile);
+    const blob = await new Promise((resolve, reject) => {
+        if (!canvas) {
+            reject("Canvas not generated");
+            return;
         }
+ 
+        canvas.toBlob((b) => {
+            if (!b) reject("Blob creation failed");
+            else resolve(b);
+        }, "image/jpeg", 0.8);
+    });
+ 
+    imageUrl = await uploadToFirebase(blob);
+ 
+} else {
+    // fallback
+    imageUrl = await uploadToFirebase(selectedImageFile);
+}
  
         const productData = {
             name: formData.get('name'),
