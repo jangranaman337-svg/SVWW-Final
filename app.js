@@ -19,7 +19,7 @@ const useFirebase = true; // Change to true when Firebase is configured
 // ================================
 // CONFIGURATION & CONSTANTS
 // ================================
-const IMGBB_API_KEY = "fa8bcd6d876fa88264839b2e06dbda86";
+
 
 const DEFAULT_BANNER = "https://images.unsplash.com/photo-1556228453-efd6c1ff04f6?w=1600&h=600&fit=crop";
 
@@ -28,7 +28,7 @@ const DEFAULT_BANNER = "https://images.unsplash.com/photo-1556228453-efd6c1ff04f
 // ================================
 
 // Initialize data from localStorage or use defaults
-let products = JSON.parse(localStorage.getItem('vishwakarma-products')) || getDefaultProducts();
+let products = [];
 let feedbacks = JSON.parse(localStorage.getItem('vishwakarma-feedbacks')) || [];
 let pinnedDesigns = JSON.parse(localStorage.getItem('vishwakarma-pinned')) || [];
 let bannerImage = localStorage.getItem('vishwakarma-banner') || DEFAULT_BANNER;
@@ -52,7 +52,9 @@ function handleImagePreview(event) {
     selectedImageFile = file;
  
     const preview = document.getElementById("image-preview");
-    preview.src = URL.createObjectURL(file);
+    preview.onload = ()=>{
+        URL.revokeObjectURL(preview.src);
+    }
     preview.style.display = "block";
  
     // Destroy old cropper if exists
@@ -72,24 +74,20 @@ function handleImagePreview(event) {
     scalable: false,
 });
 }
-
-
-async function uploadToImgBB(file) {
-    const formData = new FormData();
-    formData.append("image", file);
+async function uploadToFirebase(file) {
+    try {
+        const fileName = `product-images/${Date.now()}_${file.name}`;
+        const storageRef = storage.ref(fileName);
  
-    const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
-        method: "POST",
-        body: formData
-    });
+        const snapshot = await storageRef.put(file);
+        const downloadURL = await snapshot.ref.getDownloadURL();
  
-    const data = await response.json();
+        return downloadURL;
  
-    if (data.success) {
-        return data.data.url;
-    } else {
-        console.error(data);
-        throw new Error("Image upload failed");
+    } catch (error) {
+        console.error("Upload error:", error);
+        showToast("Image upload failed", "error");
+        throw error;
     }
 }
 
@@ -165,41 +163,24 @@ function getDefaultProducts() {
 
 // ✅ SECTION 1: Load Products from Firestore
 function loadProductsFromFirestore() {
-    if (!useFirebase) {
-        console.log('Using localStorage for products');
-        return;
-    }
-    
-    // UNCOMMENT THIS WHEN FIREBASE IS READY:
-    
-    // Real-time listener for products
     db.collection('products').onSnapshot((snapshot) => {
         products = [];
+ 
         snapshot.forEach((doc) => {
             products.push({
                 id: doc.id,
                 ...doc.data()
             });
         });
-        
-        // Update localStorage as backup
-        saveToLocalStorage();
-        
-        // Re-render UI
+ 
         renderCategories();
         renderProducts();
-        const adminContent = document.getElementById('admin-content');
-        if(adminContent){
-            renderProductsTab(adminContent);
-        }
-        
-        console.log('✅ Products synced from Firestore:', products.length);
+ 
+        console.log('Products loaded:', products.length);
     }, (error) => {
-        console.error('❌ Error loading products from Firestore:', error);
-        showToast('Failed to sync products', 'error');
+        console.error('Error:', error);
+        showToast('Failed to load products', 'error');
     });
-    
-    
 }
 
 // ✅ SECTION 2: Add Product to Firestore
@@ -210,9 +191,6 @@ async function addProductToFirestore(productData) {
             ...productData,
             id: Date.now().toString(),
         };
-        products.push(newProduct);
-        saveToLocalStorage();
-        return newProduct;
     }
     
     // UNCOMMENT THIS WHEN FIREBASE IS READY:
@@ -352,7 +330,6 @@ async function logoutFirebase() {
 // ================================
 
 function saveToLocalStorage() {
-    localStorage.setItem('vishwakarma-products', JSON.stringify(products));
     localStorage.setItem('vishwakarma-feedbacks', JSON.stringify(feedbacks));
     localStorage.setItem('vishwakarma-pinned', JSON.stringify(pinnedDesigns));
     localStorage.setItem('vishwakarma-banner', bannerImage);
@@ -698,9 +675,13 @@ function handleLogoClick() {
     }, 2000);
     
     if (logoClickCount >= 5) {
+    const email = prompt("Enter admin email");
+    if (email === "jangranaman337@gmail.com") {
         openAdminModal();
-        logoClickCount = 0;
+    } else {
+        alert("Access denied");
     }
+}
 }
 
 // ================================
@@ -760,19 +741,22 @@ async function handleFirebaseLogin(event) {
     const email = document.getElementById('admin-email').value;
     const password = document.getElementById('admin-password').value;
  
+    const ADMIN_EMAIL = "jangranaman337@gmail.com"; // same as rules
+ 
+    if (email !== ADMIN_EMAIL) {
+        showToast("Access denied: Not admin", "error");
+        return;
+    }
+ 
     try {
         const userCredential = await auth.signInWithEmailAndPassword(email, password);
-        const user = userCredential.user;
- 
-        console.log("✅ Logged in:", user.email);
  
         isAdminAuthenticated = true;
         renderAdminPanel();
         showToast('Login successful', 'success');
  
     } catch (error) {
-        console.error("❌ Login error:", error.message);
-        showToast('Invalid email or password', 'error');
+        showToast('Invalid credentials', 'error');
     }
 }
 
@@ -1007,7 +991,19 @@ if (!selectedImageFile) {
 showToast("Processing image...", "info");
  
 // 🔹 Upload original image FIRST
-const originalUrl = await uploadToImgBB(selectedImageFile);
+let imageUrl = "";
+ 
+if (cropper) {
+    const canvas = cropper.getCroppedCanvas({
+        width: 800,
+        height: 600
+    });
+ 
+    const blob = await new Promise(resolve => canvas.toBlob(resolve));
+    imageUrl = await uploadToFirebase(blob);
+} else {
+    imageUrl = await uploadToFirebase(selectedImageFile);
+}
  
 // 🔹 Default thumbnail = original
 let thumbnailUrl = originalUrl;
@@ -1417,6 +1413,12 @@ function showToast(message, type = 'info') {
         toast.remove();
     }, 3000);
 }
+
+window.onload = ()=>{
+    loadProductsFromFirestore();
+    updatePinnedBadge();
+    updateBanner();
+};
 
 // ================================
 // INITIALIZATION
