@@ -864,9 +864,40 @@ async function saveProduct(event) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
+    
+    // Add validation
+    const name = formData.get('name');
+    const price = parseInt(formData.get('price'));
+    const description = formData.get('description');
+    
+    if (!name || name.trim().length < 3) {
+        showToast('Product name must be at least 3 characters', 'error');
+        return;
+    }
+    
+    if (!price || price <= 0) {
+        showToast('Price must be greater than 0', 'error');
+        return;
+    }
+    
+    if (!description || description.trim().length < 10) {
+        showToast('Please add a meaningful description', 'error');
+        return;
+    }
+    
+    if (!selectedImageFile) {
+        showToast('Please select an image', 'error');
+        return;
+    }
+    
     const btn = form.querySelector("button[type='submit']");
-    btn.disabled = true; btn.innerText = 'Saving...';
+    btn.disabled = true; 
+    btn.innerText = 'Saving...';
+    showGlobalLoading(true);
+    
     try {
+        // ... rest of the existing saveProduct code continues here
+        // (keep all the existing code from your original saveProduct)
         if (!selectedImageFile) throw new Error('No image selected');
         showToast('Uploading image...', 'info');
         let imageUrl = '';
