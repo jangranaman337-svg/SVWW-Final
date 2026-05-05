@@ -1,5 +1,5 @@
 // ================================
-// 🔥 FIREBASE CONFIGURATION
+// ðŸ”¥ FIREBASE CONFIGURATION
 // ================================
 const useFirebase = true;
 
@@ -191,7 +191,7 @@ function getDefaultProducts() {
 }
 
 // ================================
-// 🔥 FIREBASE FUNCTIONS
+// ðŸ”¥ FIREBASE FUNCTIONS
 // ================================
 function loadProductsFromFirestore() {
     showSkeletons();
@@ -250,12 +250,12 @@ async function deleteProductFromFirestore(id) {
 }
 
 // ================================
-// 🔐 FIREBASE AUTH
+// ðŸ” FIREBASE AUTH
 // ================================
 function checkAuthState() {
     auth.onAuthStateChanged((user) => {
         isAdminAuthenticated = !!user;
-        console.log(user ? `✅ Logged in: ${user.email}` : '❌ Logged out');
+        console.log(user ? `âœ… Logged in: ${user.email}` : 'âŒ Logged out');
     });
 }
 
@@ -407,7 +407,7 @@ function createProductCard(product) {
                     Top Pick
                 </div>` : ''}
                 <img data-src="${product.image}" alt="${product.name}" class="product-image">
-                <div class="price-badge">₹${product.price.toLocaleString('en-IN')}</div>
+                <div class="price-badge">â‚¹${product.price.toLocaleString('en-IN')}</div>
                 <button class="pin-btn ${isPinned ? 'pinned' : ''}" onclick="togglePin(event,'${product.id}')" title="${isPinned ? 'Unpin' : 'Pin'} design">
                     <svg class="icon-small" viewBox="0 0 24 24" fill="${isPinned ? 'white' : 'none'}" stroke="${isPinned ? 'white' : 'currentColor'}" stroke-width="2">
                         <path d="M12 17v5m-7-5l7-7 7 7m-7-7v-5l-3 1v5z"/>
@@ -466,7 +466,7 @@ function togglePin(event, productId) {
     if (pinDetailBtn && pinDetailBtn.dataset.id === productId) {
         const nowPinned = pinnedDesigns.some(i => i.product.id === productId);
         pinDetailBtn.className = `btn-pin-detail ${nowPinned ? 'pinned' : ''}`;
-        pinDetailBtn.innerHTML = nowPinned ? '📌 Pinned' : '📌 Pin This Design';
+        pinDetailBtn.innerHTML = nowPinned ? 'ðŸ“Œ Pinned' : 'ðŸ“Œ Pin This Design';
     }
 }
 
@@ -480,7 +480,7 @@ function openProductDetail(productId) {
     // Get related products (same category, excluding current)
     const related = products.filter(p => p.category === product.category && p.id !== product.id).slice(0, 6);
     const isPinned = pinnedDesigns.some(item => item.product.id === product.id);
-    const whatsappMsg = encodeURIComponent(`Hello! I'm interested in the "${product.name}" (₹${product.price.toLocaleString('en-IN')}) from Shri Vishwakarma Wood Works. Could you provide more details?`);
+    const whatsappMsg = encodeURIComponent(`Hello! I'm interested in the "${product.name}" (â‚¹${product.price.toLocaleString('en-IN')}) from Shri Vishwakarma Wood Works. Could you provide more details?`);
 
     const modal = document.createElement('div');
     modal.id = 'product-detail-overlay';
@@ -504,7 +504,7 @@ function openProductDetail(productId) {
                         </div>
                         <h2 class="detail-name">${product.name}</h2>
                         <div>
-                            <div class="detail-price">₹${product.price.toLocaleString('en-IN')}</div>
+                            <div class="detail-price">â‚¹${product.price.toLocaleString('en-IN')}</div>
                             <div class="detail-price-note">*Estimated price. Final price may vary based on dimensions & material.</div>
                         </div>
                         <p class="detail-description">${product.description}</p>
@@ -516,7 +516,7 @@ function openProductDetail(productId) {
                                 Enquire on WhatsApp
                             </a>
                             <button id="detail-pin-btn" data-id="${product.id}" class="btn-pin-detail ${isPinned ? 'pinned' : ''}" onclick="togglePinFromDetail('${product.id}')">
-                                📌 ${isPinned ? 'Pinned' : 'Pin This Design'}
+                                ðŸ“Œ ${isPinned ? 'Pinned' : 'Pin This Design'}
                             </button>
                         </div>
                     </div>
@@ -530,7 +530,7 @@ function openProductDetail(productId) {
                                 <img src="${r.image}" alt="${r.name}" loading="lazy">
                                 <div class="related-card-info">
                                     <div class="related-card-name">${r.name}</div>
-                                    <div class="related-card-price">₹${r.price.toLocaleString('en-IN')}</div>
+                                    <div class="related-card-price">â‚¹${r.price.toLocaleString('en-IN')}</div>
                                 </div>
                             </div>
                         `).join('')}
@@ -594,7 +594,7 @@ function togglePinFromDetail(productId) {
     if (btn) {
         const nowPinned = pinnedDesigns.some(i => i.product.id === productId);
         btn.className = `btn-pin-detail ${nowPinned ? 'pinned' : ''}`;
-        btn.textContent = nowPinned ? '📌 Pinned' : '📌 Pin This Design';
+        btn.textContent = nowPinned ? 'ðŸ“Œ Pinned' : 'ðŸ“Œ Pin This Design';
     }
 }
 
@@ -634,8 +634,8 @@ function showPinnedDesigns() {
     if (pinnedDesigns.length === 0) { showToast('No designs pinned yet'); return; }
 
     const totalEstimate = pinnedDesigns.reduce((sum, item) => sum + item.product.price, 0);
-    const whatsappMessage = `Hello! I'm interested in these designs from Shri Vishwakarma Wood Works:\n\n${pinnedDesigns.map((item, idx) => `${idx+1}. ${item.product.name} - ₹${item.product.price.toLocaleString('en-IN')}`).join('\n')}\n\nEstimated Total: ₹${totalEstimate.toLocaleString('en-IN')}\n\nI'd like to discuss pricing and details.`;
-    const emailBody = pinnedDesigns.map((item, idx) => `${idx+1}. ${item.product.name} (₹${item.product.price.toLocaleString('en-IN')})`).join('%0D%0A');
+    const whatsappMessage = `Hello! I'm interested in these designs from Shri Vishwakarma Wood Works:\n\n${pinnedDesigns.map((item, idx) => `${idx+1}. ${item.product.name} - â‚¹${item.product.price.toLocaleString('en-IN')}`).join('\n')}\n\nEstimated Total: â‚¹${totalEstimate.toLocaleString('en-IN')}\n\nI'd like to discuss pricing and details.`;
+    const emailBody = pinnedDesigns.map((item, idx) => `${idx+1}. ${item.product.name} (â‚¹${item.product.price.toLocaleString('en-IN')})`).join('%0D%0A');
 
     const html = `
         <div style="max-height: 60vh; overflow-y: auto;">
@@ -649,7 +649,7 @@ function showPinnedDesigns() {
                             <p style="font-size: 0.75rem; color: var(--text-light);">${item.product.category}</p>
                         </div>
                         <div style="display: flex; flex-direction: column; justify-content: space-between; align-items: flex-end; flex-shrink:0;">
-                            <div style="font-weight: 700; color: var(--primary); font-size:0.9rem;">₹${item.product.price.toLocaleString('en-IN')}</div>
+                            <div style="font-weight: 700; color: var(--primary); font-size:0.9rem;">â‚¹${item.product.price.toLocaleString('en-IN')}</div>
                             <button onclick="removeFromPinnedInModal('${item.product.id}')" style="padding: 0.2rem 0.4rem; background: none; border: none; color: var(--danger); cursor: pointer; font-size: 0.8rem;">Remove</button>
                         </div>
                     </div>
@@ -662,7 +662,7 @@ function showPinnedDesigns() {
                 </div>
                 <div style="display: flex; justify-content: space-between; font-size: 1.1rem; font-weight: 700; margin-bottom: 0.75rem;">
                     <span>Estimated Total:</span>
-                    <span style="color: var(--primary);">₹${totalEstimate.toLocaleString('en-IN')}</span>
+                    <span style="color: var(--primary);">â‚¹${totalEstimate.toLocaleString('en-IN')}</span>
                 </div>
                 <div style="background: #fef3c7; border: 1px solid #fcd34d; border-radius: 8px; padding: 0.6rem 0.875rem; margin-bottom: 1rem; font-size: 0.8rem; color: #92400e;">
                     <strong>Note:</strong> Final pricing may vary based on customisation and dimensions.
@@ -672,11 +672,11 @@ function showPinnedDesigns() {
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path></svg>
                         Send via WhatsApp
                     </a>
-                    <a href="mailto:jangranaman337@gmail.com?subject=Inquiry about Selected Designs&body=Hi,%0D%0A%0D%0AI'm interested in:%0D%0A%0D%0A${emailBody}%0D%0A%0D%0AEstimated Total: ₹${totalEstimate.toLocaleString('en-IN')}%0D%0A%0D%0AThank you!" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;background:white;color:var(--primary);padding:0.7rem;border:1.5px solid var(--primary);border-radius:50px;text-decoration:none;font-weight:600;font-size:0.875rem;">
-                        📧 Send via Email
+                    <a href="mailto:jangranaman337@gmail.com?subject=Inquiry about Selected Designs&body=Hi,%0D%0A%0D%0AI'm interested in:%0D%0A%0D%0A${emailBody}%0D%0A%0D%0AEstimated Total: â‚¹${totalEstimate.toLocaleString('en-IN')}%0D%0A%0D%0AThank you!" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;background:white;color:var(--primary);padding:0.7rem;border:1.5px solid var(--primary);border-radius:50px;text-decoration:none;font-weight:600;font-size:0.875rem;">
+                        ðŸ“§ Send via Email
                     </a>
                     <a href="tel:+917082702447" style="display:flex;align-items:center;justify-content:center;gap:0.5rem;background:var(--primary);color:white;padding:0.7rem;border-radius:50px;text-decoration:none;font-weight:600;font-size:0.875rem;">
-                        📞 Call Now
+                        ðŸ“ž Call Now
                     </a>
                 </div>
             </div>
@@ -799,7 +799,7 @@ function renderProductsTab(content) {
         <div id="product-form-container"></div>
         <div style="overflow-x:auto;">
             <table class="admin-table">
-                <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Type</th><th>Price</th><th>⭐</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Type</th><th>Price</th><th>â­</th><th>Actions</th></tr></thead>
                 <tbody>
                     ${products.map(product => `
                         <tr>
@@ -807,10 +807,10 @@ function renderProductsTab(content) {
                             <td>${product.name}</td>
                             <td>${product.category}</td>
                             <td><span class="type-badge ${product.type==='previous-work'?'type-previous':'type-inspiration'}">${product.type==='previous-work'?'Previous Work':'Inspiration'}</span></td>
-                            <td>₹${product.price.toLocaleString('en-IN')}</td>
+                            <td>â‚¹${product.price.toLocaleString('en-IN')}</td>
                             <td>
                                 <button onclick="toggleMostLiked('${product.id}')" class="btn ${product.mostLiked?'btn-primary':'btn-outline'}" style="padding:0.2rem 0.5rem;font-size:0.75rem;" title="${product.mostLiked?'Remove from':'Add to'} Most Liked">
-                                    ${product.mostLiked ? '⭐' : '☆'}
+                                    ${product.mostLiked ? 'â­' : 'â˜†'}
                                 </button>
                             </td>
                             <td>
@@ -834,7 +834,7 @@ function showAddProductForm() {
             <form onsubmit="saveProduct(event)" id="product-form">
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;">
                     <div class="form-group"><label>Name *</label><input type="text" name="name" required></div>
-                    <div class="form-group"><label>Price (₹) *</label><input type="number" name="price" required></div>
+                    <div class="form-group"><label>Price (â‚¹) *</label><input type="number" name="price" required></div>
                     <div class="form-group"><label>Category *</label><select name="category" required>${getCategoryOptions()}</select></div>
                     <div class="form-group"><label>Type *</label><select name="type" required><option value="previous-work">Previous Work</option><option value="inspiration">Inspiration</option></select></div>
                 </div>
@@ -864,40 +864,9 @@ async function saveProduct(event) {
     event.preventDefault();
     const form = event.target;
     const formData = new FormData(form);
-    
-    // Add validation
-    const name = formData.get('name');
-    const price = parseInt(formData.get('price'));
-    const description = formData.get('description');
-    
-    if (!name || name.trim().length < 3) {
-        showToast('Product name must be at least 3 characters', 'error');
-        return;
-    }
-    
-    if (!price || price <= 0) {
-        showToast('Price must be greater than 0', 'error');
-        return;
-    }
-    
-    if (!description || description.trim().length < 10) {
-        showToast('Please add a meaningful description', 'error');
-        return;
-    }
-    
-    if (!selectedImageFile) {
-        showToast('Please select an image', 'error');
-        return;
-    }
-    
     const btn = form.querySelector("button[type='submit']");
-    btn.disabled = true; 
-    btn.innerText = 'Saving...';
-    showGlobalLoading(true);
-    
+    btn.disabled = true; btn.innerText = 'Saving...';
     try {
-        // ... rest of the existing saveProduct code continues here
-        // (keep all the existing code from your original saveProduct)
         if (!selectedImageFile) throw new Error('No image selected');
         showToast('Uploading image...', 'info');
         let imageUrl = '';
@@ -944,7 +913,7 @@ function editProduct(id) {
             <form onsubmit="updateProduct(event,'${id}')" id="product-form">
                 <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:1rem;">
                     <div class="form-group"><label>Name *</label><input type="text" name="name" value="${product.name}" required></div>
-                    <div class="form-group"><label>Price (₹) *</label><input type="number" name="price" value="${product.price}" required></div>
+                    <div class="form-group"><label>Price (â‚¹) *</label><input type="number" name="price" value="${product.price}" required></div>
                     <div class="form-group"><label>Category *</label><select name="category" required>${getCategoryOptions(product.category)}</select></div>
                     <div class="form-group"><label>Type *</label><select name="type" required><option value="previous-work" ${product.type==='previous-work'?'selected':''}>Previous Work</option><option value="inspiration" ${product.type==='inspiration'?'selected':''}>Inspiration</option></select></div>
                 </div>
@@ -1032,7 +1001,7 @@ function renderMostLikedTab(content) {
                 <div class="product-card">
                     <div class="product-image-container">
                         <img src="${product.image}" alt="${product.name}" class="product-image loaded" onclick="openImageViewer('${product.image}','${product.name}')">
-                        <div class="price-badge">₹${product.price.toLocaleString('en-IN')}</div>
+                        <div class="price-badge">â‚¹${product.price.toLocaleString('en-IN')}</div>
                     </div>
                     <div class="product-info">
                         <div class="product-category">${product.category}</div>
@@ -1057,7 +1026,7 @@ function renderBannerTab(content) {
             <div style="border:1.5px solid var(--border);padding:1rem;border-radius:8px;">
                 <h4 style="font-weight:600;font-size:0.8rem;margin-bottom:0.75rem;">UPLOAD NEW BANNER</h4>
                 <input type="file" accept="image/*" onchange="handleImageUpload(event,'banner')" style="margin-bottom:0.75rem;">
-                <div style="text-align:center;margin:0.75rem 0;color:var(--text-muted);font-size:0.8rem;">— OR —</div>
+                <div style="text-align:center;margin:0.75rem 0;color:var(--text-muted);font-size:0.8rem;">â€” OR â€”</div>
                 <div class="form-group">
                     <label>Image URL</label>
                     <input type="text" value="${bannerImage}" onchange="updateBannerUrl(this.value)" placeholder="https://...">
@@ -1102,7 +1071,7 @@ function renderFeedbacksTab(content) {
                     <div style="display:flex;justify-content:space-between;align-items:start;margin-bottom:0.75rem;gap:1rem;flex-wrap:wrap;">
                         <div>
                             <h4 style="font-weight:700;font-size:0.95rem;">${feedback.name}</h4>
-                            <p style="font-size:0.8rem;color:var(--text-light);">${feedback.email} · ${feedback.phone}</p>
+                            <p style="font-size:0.8rem;color:var(--text-light);">${feedback.email} Â· ${feedback.phone}</p>
                             <p style="font-size:0.75rem;color:var(--text-muted);margin-top:0.2rem;">${new Date(feedback.timestamp).toLocaleString('en-IN')}</p>
                         </div>
                         <button onclick="deleteFeedback('${feedback.id}')" class="btn btn-outline" style="padding:0.2rem 0.5rem;font-size:0.8rem;color:var(--danger);">Delete</button>
@@ -1196,5 +1165,5 @@ window.onload = () => {
     document.getElementById('feedback-modal').addEventListener('click', (e) => { if (e.target.id === 'feedback-modal') closeFeedbackModal(); });
     document.getElementById('image-viewer-modal').addEventListener('click', (e) => { if (e.target.id === 'image-viewer-modal') closeImageViewer(); });
 
-    console.log('🪵 Shri Vishwakarma Wood Works — Loaded');
+    console.log('ðŸªµ Shri Vishwakarma Wood Works â€” Loaded');
 };
