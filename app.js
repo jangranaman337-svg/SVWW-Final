@@ -163,13 +163,35 @@ function handleImagePreview(event) {
     });
 }
 
+async function createThumbnailFromCropper() {
+
+    return new Promise((resolve) => {
+
+        cropper.getCroppedCanvas({
+
+            width: 500,
+            height: 375,
+            imageSmoothingQuality: 'high'
+
+        }).toBlob((blob) => {
+
+            resolve(blob);
+
+        }, 'image/jpeg', 0.7);
+
+    });
+}
+
 async function uploadToFirebase(file) {
     try {
-        const fileName = `product-images/${Date.now()}.jpg`;
+         const fileName = `${folder}/${Date.now()}.jpg`;
+
         const storageRef = storage.ref(fileName);
+
         const snapshot = await storageRef.put(file);
+
         return await snapshot.ref.getDownloadURL();
-    } catch (error) {
+    } catch (error)
         console.error('Upload error:', error);
         showToast('Image upload failed', 'error');
         throw error;
