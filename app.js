@@ -200,6 +200,7 @@ function loadProductsFromFirestore() {
         snapshot.forEach((doc) => { products.push({ id: doc.id, ...doc.data() }); });
         renderCategories();
         renderProducts();
+        renderAdminProducts();
         console.log('Products loaded:', products.length);
     }, (error) => {
         console.error('Error:', error);
@@ -207,6 +208,7 @@ function loadProductsFromFirestore() {
         products = getDefaultProducts();
         renderCategories();
         renderProducts();
+        renderAdminProducts();
     });
 }
 
@@ -384,6 +386,42 @@ function renderProducts() {
             viewAllInsp.classList.add('hidden');
         }
     }
+}
+function renderAdminProducts() {
+
+    const container = document.getElementById('admin-products-list');
+
+    if (!container) return;
+
+    container.innerHTML = products.map(product => `
+
+        <div class="admin-product-item">
+
+            <img 
+                src="${product.thumbnailImage || product.image}" 
+                width="70"
+                height="70"
+                style="object-fit:cover;border-radius:8px;"
+            >
+
+            <div>
+                <h4>${product.name}</h4>
+                <p>${product.category}</p>
+            </div>
+
+            <div>
+                <button onclick="editProduct('${product.id}')">
+                    Edit
+                </button>
+
+                <button onclick="deleteProduct('${product.id}')">
+                    Delete
+                </button>
+            </div>
+
+        </div>
+
+    `).join('');
 }
 
 function emptyState(message) {
