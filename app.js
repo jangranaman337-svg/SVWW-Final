@@ -466,7 +466,7 @@ function togglePin(event, productId) {
     if (pinDetailBtn && pinDetailBtn.dataset.id === productId) {
         const nowPinned = pinnedDesigns.some(i => i.product.id === productId);
         pinDetailBtn.className = `btn-pin-detail ${nowPinned ? 'pinned' : ''}`;
-        pinDetailBtn.innerHTML = nowPinned ? 'Ã°Å¸â€œÅ’ Pinned' : 'Ã°Å¸â€œÅ’ Pin This Design';
+        pinDetailBtn.innerHTML = nowPinned ? '📌 Pinned' : '📌 Pin This Design';
     }
 }
 
@@ -516,7 +516,7 @@ function openProductDetail(productId) {
                                 Enquire on WhatsApp
                             </a>
                             <button id="detail-pin-btn" data-id="${product.id}" class="btn-pin-detail ${isPinned ? 'pinned' : ''}" onclick="togglePinFromDetail('${product.id}')">
-                                Ã°Å¸â€œÅ’ ${isPinned ? 'Pinned' : 'Pin This Design'}
+                                📌 ${isPinned ? 'Pinned' : 'Pin This Design'}
                             </button>
                         </div>
                     </div>
@@ -594,7 +594,7 @@ function togglePinFromDetail(productId) {
     if (btn) {
         const nowPinned = pinnedDesigns.some(i => i.product.id === productId);
         btn.className = `btn-pin-detail ${nowPinned ? 'pinned' : ''}`;
-        btn.textContent = nowPinned ? 'Ã°Å¸â€œÅ’ Pinned' : 'Ã°Å¸â€œÅ’ Pin This Design';
+        btn.textContent = nowPinned ? '📌 Pinned' : '📌 Pin This Design';
     }
 }
 
