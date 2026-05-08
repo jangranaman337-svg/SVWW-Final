@@ -163,35 +163,13 @@ function handleImagePreview(event) {
     });
 }
 
-async function createThumbnailFromCropper() {
-
-    return new Promise((resolve) => {
-
-        cropper.getCroppedCanvas({
-
-            width: 500,
-            height: 375,
-            imageSmoothingQuality: 'high'
-
-        }).toBlob((blob) => {
-
-            resolve(blob);
-
-        }, 'image/jpeg', 0.7);
-
-    });
-}
-
 async function uploadToFirebase(file) {
     try {
-         const fileName = `${folder}/${Date.now()}.jpg`;
-
+        const fileName = `product-images/${Date.now()}.jpg`;
         const storageRef = storage.ref(fileName);
-
         const snapshot = await storageRef.put(file);
-
         return await snapshot.ref.getDownloadURL();
-    } catch (error)
+    } catch (error) {
         console.error('Upload error:', error);
         showToast('Image upload failed', 'error');
         throw error;
@@ -222,7 +200,6 @@ function loadProductsFromFirestore() {
         snapshot.forEach((doc) => { products.push({ id: doc.id, ...doc.data() }); });
         renderCategories();
         renderProducts();
-        renderAdminProducts();
         console.log('Products loaded:', products.length);
     }, (error) => {
         console.error('Error:', error);
@@ -230,7 +207,6 @@ function loadProductsFromFirestore() {
         products = getDefaultProducts();
         renderCategories();
         renderProducts();
-        renderAdminProducts();
     });
 }
 
@@ -247,6 +223,7 @@ async function addProductToFirestore(productData) {
         showToast('Failed to add product', 'error');
         throw error;
     }
+    renderAdminPanel();
 }
 
 async function updateProductInFirestore(id, updates) {
@@ -271,6 +248,7 @@ async function deleteProductFromFirestore(id) {
         showToast('Failed to delete product', 'error');
         throw error;
     }
+    renderAdminPanel();
 }
 
 // ================================
@@ -409,42 +387,6 @@ function renderProducts() {
         }
     }
 }
-function renderAdminProducts() {
-
-    const container = document.getElementById('admin-products-list');
-
-    if (!container) return;
-
-    container.innerHTML = products.map(product => `
-
-        <div class="admin-product-item">
-
-            <img 
-                src="${product.thumbnailImage || product.image}" 
-                width="70"
-                height="70"
-                style="object-fit:cover;border-radius:8px;"
-            >
-
-            <div>
-                <h4>${product.name}</h4>
-                <p>${product.category}</p>
-            </div>
-
-            <div>
-                <button onclick="editProduct('${product.id}')">
-                    Edit
-                </button>
-
-                <button onclick="deleteProduct('${product.id}')">
-                    Delete
-                </button>
-            </div>
-
-        </div>
-
-    `).join('');
-}
 
 function emptyState(message) {
     return `<div class="empty-state">
@@ -458,29 +400,49 @@ function emptyState(message) {
 }
 
 function createProductCard(product) {
-    const isPinned = pinnedDesigns.some(item => item.product.id === product.id);
-    return `
-        <div class="product-card" onclick="openProductDetail('${product.id}')">
-            <div class="product-image-container skeleton-loading">
-                ${product.mostLiked ? `<div class="most-liked-badge">
-                    <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
-                    Top Pick
-                </div>` : ''}
-                <img data-src="${product.image}" alt="${product.name}" class="product-image">
-                <div class="price-badge">â‚¹${product.price.toLocaleString('en-IN')}</div>
-                <button class="pin-btn ${isPinned ? 'pinned' : ''}" onclick="togglePin(event,'${product.id}')" title="${isPinned ? 'Unpin' : 'Pin'} design">
-                    <svg class="icon-small" viewBox="0 0 24 24" fill="${isPinned ? 'white' : 'none'}" stroke="${isPinned ? 'white' : 'currentColor'}" stroke-width="2">
-                        <path d="M12 17v5m-7-5l7-7 7 7m-7-7v-5l-3 1v5z"/>
-                    </svg>
-                </button>
-            </div>
-            <div class="product-info">
-                <div class="product-category">${product.category}</div>
-                <h3 class="product-name">${product.name}</h3>
-                <p class="product-description">${product.description}</p>
-            </div>
-        </div>
-    `;
+  const isPinned = pinnedDesigns.some(item => item.product.id === product.id);
+  const thumb = product.imageThumb || product.image; // ✅ fallback safe
+
+  return `
+    <div class="product-card" onclick="openProductDetail('${product.id}')">
+      <div class="product-image-container skeleton-loading">
+
+        ${product.mostLiked ? `
+          <div class="most-liked-badge">
+            <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+              <polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>
+            </svg>
+            Top Pick
+          </div>
+        ` : ''}
+
+        <img
+          data-src="${thumb}"
+          alt="${product.name}"
+          class="product-image"
+          loading="lazy"
+<button
+          class="pin-btn ${isPinned ? 'pinned' : ''}"
+          onclick="togglePin(event, '${product.id}')"
+          title="${isPinned ? 'Unpin' : 'Pin'} design"
+        >
+          <svg class="icon-small" viewBox="0 0 24 24"
+            fill="${isPinned ? 'white' : 'none'}"
+            stroke="${isPinned ? 'white' : 'currentColor'}"
+            stroke-width="2">
+            <path d="M12 17v5m-7-5l7-7 7 7m-7-7v-5l-3 1v5z"/>
+          </svg>
+        </button>
+
+      </div>
+
+      <div class="product-info">
+        <div class="product-category">${product.category}</div>
+        <h3 class="product-name">${product.name}</h3>
+        <p class="product-description">${product.description}</p>
+      </div>
+    </div>
+  `;
 }
 
 function updateBanner() {
@@ -929,25 +891,39 @@ async function saveProduct(event) {
     try {
         if (!selectedImageFile) throw new Error('No image selected');
         showToast('Uploading image...', 'info');
-        let imageUrl = '';
-        if (cropper && cropper.getCroppedCanvas()) {
-            const canvas = cropper.getCroppedCanvas({ width: 800, height: 600 });
-            const blob = await new Promise((resolve, reject) => {
-                canvas.toBlob(b => b ? resolve(b) : reject('Blob failed'), 'image/jpeg', 0.85);
-            });
-            imageUrl = await uploadToFirebase(blob);
-        } else {
-            imageUrl = await uploadToFirebase(selectedImageFile);
-        }
+        // ✅ THUMB (fast image)
+const thumbCanvas = cropper.getCroppedCanvas({
+  width: 400,
+  height: 300
+});
+
+const thumbBlob = await new Promise((resolve, reject) => {
+  thumbCanvas.toBlob(b => b ? resolve(b) : reject(), 'image/jpeg', 0.7);
+});
+
+// ✅ FULL IMAGE (high quality)
+const fullCanvas = cropper.getCroppedCanvas({
+  width: 1200,
+  height: 900
+});
+
+const fullBlob = await new Promise((resolve, reject) => {
+  fullCanvas.toBlob(b => b ? resolve(b) : reject(), 'image/jpeg', 0.9);
+});
+
+// ✅ Upload both
+const imageThumb = await uploadToFirebase(thumbBlob);
+const imageFull = await uploadToFirebase(fullBlob);
         await addProductToFirestore({
-            name: formData.get('name'),
-            description: formData.get('description'),
-            price: parseInt(formData.get('price')),
-            category: formData.get('category'),
-            image: imageUrl,
-            type: formData.get('type'),
-            mostLiked: formData.get('mostLiked') === 'on'
-        });
+  name: formData.get('name'),
+  description: formData.get('description'),
+  price: parseInt(formData.get('price')),
+  category: formData.get('category'),
+  type: formData.get('type'),
+  mostLiked: formData.get('mostLiked') === 'on',
+  imageThumb,
+  imageFull
+});
         form.reset();
         selectedImageFile = null;
         if (cropper) { cropper.destroy(); cropper = null; }
@@ -1185,6 +1161,7 @@ function openImageViewer(url, name) {
     document.getElementById('image-viewer-title').textContent = name;
     document.getElementById('viewer-image').src = url;
     currentZoom = 100;
+    document.getElementById('viewer-image').style.transform = 'scale(1)';
     modal.classList.remove('hidden');
 }
 
@@ -1227,3 +1204,24 @@ window.onload = () => {
 
     console.log('ðŸªµ Shri Vishwakarma Wood Works â€” Loaded');
 };
+
+function zoomIn() {
+  currentZoom += 20;
+  applyZoom();
+}
+
+function zoomOut() {
+  currentZoom = Math.max(20, currentZoom - 20);
+  applyZoom();
+}
+
+function resetZoom() {
+  currentZoom = 100;
+  applyZoom();
+}
+
+function applyZoom() {
+  const img = document.getElementById('viewer-image');
+  if (!img) return;
+  img.style.transform = `scale(${currentZoom / 100})`;
+}
