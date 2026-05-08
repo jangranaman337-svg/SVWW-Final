@@ -799,7 +799,7 @@ function renderProductsTab(content) {
         <div id="product-form-container"></div>
         <div style="overflow-x:auto;">
             <table class="admin-table">
-                <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Type</th><th>Price</th><th>Ã¢Â­Â</th><th>Actions</th></tr></thead>
+                <thead><tr><th>Image</th><th>Name</th><th>Category</th><th>Type</th><th>Price</th><th>Edit</th><th>Actions</th></tr></thead>
                 <tbody>
                     ${products.map(product => `
                         <tr>
@@ -810,7 +810,7 @@ function renderProductsTab(content) {
                             <td>₹${product.price.toLocaleString('en-IN')}</td>
                             <td>
                                 <button onclick="toggleMostLiked('${product.id}')" class="btn ${product.mostLiked?'btn-primary':'btn-outline'}" style="padding:0.2rem 0.5rem;font-size:0.75rem;" title="${product.mostLiked?'Remove from':'Add to'} Most Liked">
-                                    ${product.mostLiked ? 'Ã¢Â­Â' : 'Ã¢Ëœâ€ '}
+                                    ${product.mostLiked ? 'Edit' : 'Ã¢Ëœâ€ '}
                                 </button>
                             </td>
                             <td>
