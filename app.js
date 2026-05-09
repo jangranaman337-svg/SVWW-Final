@@ -561,14 +561,57 @@ function openFullscreen() {
 
   if (!img) return;
 
-  if (img.requestFullscreen) {
-    img.requestFullscreen();
-  } else if (img.webkitRequestFullscreen) {
-    img.webkitRequestFullscreen(); // Safari
-  } else if (img.msRequestFullscreen) {
-    img.msRequestFullscreen(); // IE
+  if (document.fullscreenElement) {
+    // Already in fullscreen → EXIT
+    document.exitFullscreen();
+  } else {
+    // Enter fullscreen
+    if (img.requestFullscreen) {
+      img.requestFullscreen();
+    } else if (img.webkitRequestFullscreen) {
+      img.webkitRequestFullscreen();
+    }
   }
 }
+document.addEventListener('keydown', function (e) {
+  if (e.key === 'Escape' && document.fullscreenElement) {
+    document.exitFullscreen();
+  }
+});
+function exitFullscreen() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  }
+}
+function handleDoubleTap() {
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+  } else {
+    openFullscreen();
+  }
+}
+window.addEventListener('popstate', function () {
+
+  // 1. Exit fullscreen first
+  if (document.fullscreenElement) {
+    document.exitFullscreen();
+    return;
+  }
+
+  // 2. Close image viewer
+  const imageModal = document.getElementById('image-viewer-modal');
+  if (!imageModal.classList.contains('hidden')) {
+    closeImageViewer();
+    return;
+  }
+
+  // 3. Close product modal
+  const productModal = document.getElementById('product-detail-overlay');
+  if (productModal) {
+    closeProductDetail();
+    return;
+  }
+});
 
 function handleDetailKeydown(e) {
     if (e.key === 'Escape') closeProductDetail();
