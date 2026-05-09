@@ -556,6 +556,19 @@ function openProductDetail(productId) {
     // Close on Escape
     document.addEventListener('keydown', handleDetailKeydown);
 }
+function openFullscreen() {
+  const img = document.getElementById('viewer-image');
+
+  if (!img) return;
+
+  if (img.requestFullscreen) {
+    img.requestFullscreen();
+  } else if (img.webkitRequestFullscreen) {
+    img.webkitRequestFullscreen(); // Safari
+  } else if (img.msRequestFullscreen) {
+    img.msRequestFullscreen(); // IE
+  }
+}
 
 function handleDetailKeydown(e) {
     if (e.key === 'Escape') closeProductDetail();
