@@ -529,7 +529,7 @@ nav { display: none; }
 .product-detail-modal {
     position: fixed;
     inset: 0;
-    z-index: 100;
+    z-index: 1000;
     background: rgba(0,0,0,0.6);
     display: flex;
     align-items: flex-end;
@@ -801,7 +801,7 @@ nav { display: none; }
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 200;
+    z-index: 2000;
     background: rgba(0,0,0,0.5);
     display: flex;
     align-items: center;
@@ -860,6 +860,10 @@ nav { display: none; }
 /* ================================
    IMAGE VIEWER
 ================================ */
+#image-viewer-modal {
+  z-index: 3000 !important;
+}
+``
 .image-viewer-content {
     background: #111;
     border-radius: var(--radius);
