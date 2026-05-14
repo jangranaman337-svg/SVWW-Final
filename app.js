@@ -542,6 +542,7 @@ function openProductDetail(productId) {
 
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
+    pushHistory('productDetail', { productId: productId });
 
     // Animate in
     requestAnimationFrame(() => {
@@ -556,72 +557,34 @@ function openProductDetail(productId) {
     // Close on Escape
     document.addEventListener('keydown', handleDetailKeydown);
 }
-function openFullscreen() {
-  const img = document.getElementById('viewer-image');
-
-  if (!img) return;
-
-  if (document.fullscreenElement) {
-    // Already in fullscreen → EXIT
-    document.exitFullscreen();
-  } else {
-    // Enter fullscreen
-    if (img.requestFullscreen) {
-      img.requestFullscreen();
-    } else if (img.webkitRequestFullscreen) {
-      img.webkitRequestFullscreen();
-    }
-  }
-}
-document.addEventListener('keydown', function (e) {
-  if (e.key === 'Escape' && document.fullscreenElement) {
-    document.exitFullscreen();
-  }
-});
-function exitFullscreen() {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  }
-}
-function handleDoubleTap() {
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-  } else {
-    openFullscreen();
-  }
-}
-window.addEventListener('popstate', function () {
-
-  // 1. Exit fullscreen first
-  if (document.fullscreenElement) {
-    document.exitFullscreen();
-    return;
-  }
-
-  // 2. Close image viewer
-  const imageModal = document.getElementById('image-viewer-modal');
-  if (!imageModal.classList.contains('hidden')) {
-    closeImageViewer();
-    return;
-  }
-
-  // 3. Close product modal
-  const productModal = document.getElementById('product-detail-overlay');
-  if (productModal) {
-    closeProductDetail();
-    return;
-  }
-});
 
 function handleDetailKeydown(e) {
     if (e.key === 'Escape') closeProductDetail();
 }
 
+// Global ESC closes feedback, image viewer, pinned modals
+document.addEventListener('keydown', function(e) {
+    if (e.key !== 'Escape') return;
+    // image viewer
+    const viewer = document.getElementById('image-viewer-modal');
+    if (viewer && !viewer.classList.contains('hidden')) { closeImageViewer(); return; }
+    // feedback
+    const fb = document.getElementById('feedback-modal');
+    if (fb && !fb.classList.contains('hidden')) { closeFeedbackModal(); return; }
+    // admin
+    const admin = document.getElementById('admin-modal');
+    if (admin && !admin.classList.contains('hidden')) { closeAdminModal(); return; }
+    // dynamic modals
+    closeTopModal();
+});
+
 function closeProductDetail() {
     const modal = document.getElementById('product-detail-overlay');
     if (!modal) return;
     modal.classList.remove('open');
-    document.body.style.overflow = '';
+    // Only restore scroll if no other modals are open
+    const otherModals = document.querySelectorAll('.modal:not(.hidden)');
+    if (otherModals.length === 0) document.body.style.overflow = '';
     document.removeEventListener('keydown', handleDetailKeydown);
     setTimeout(() => modal.remove(), 300);
 }
@@ -677,6 +640,7 @@ function viewAllSection(type) {
     `;
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
+    pushHistory('viewAll', { type: type });
     modal.addEventListener('click', (e) => {
         if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; }
     });
@@ -752,6 +716,7 @@ function showPinnedDesigns() {
     `;
     document.body.appendChild(modal);
     document.body.style.overflow = 'hidden';
+    pushHistory('pinned', {});
     modal.addEventListener('click', (e) => {
         if (e.target === modal) { modal.remove(); document.body.style.overflow = ''; }
     });
@@ -787,6 +752,7 @@ function handleLogoClick() {
 function openAdminModal() {
     const modal = document.getElementById('admin-modal');
     modal.classList.remove('hidden');
+    pushHistory('admin', {});
     if (!auth.currentUser) renderAdminLogin();
     else renderAdminPanel();
 }
@@ -866,7 +832,7 @@ function renderProductsTab(content) {
                             <td>₹${product.price.toLocaleString('en-IN')}</td>
                             <td>
                                 <button onclick="toggleMostLiked('${product.id}')" class="btn ${product.mostLiked?'btn-primary':'btn-outline'}" style="padding:0.2rem 0.5rem;font-size:0.75rem;" title="${product.mostLiked?'Remove from':'Add to'} Most Liked">
-                                    ${product.mostLiked ? 'Edit' : 'Ã¢Ëœâ€ '}
+                                    ${product.mostLiked ? 'Edit' : '☆'}
                                 </button>
                             </td>
                             <td>
@@ -1082,7 +1048,7 @@ function renderBannerTab(content) {
             <div style="border:1.5px solid var(--border);padding:1rem;border-radius:8px;">
                 <h4 style="font-weight:600;font-size:0.8rem;margin-bottom:0.75rem;">UPLOAD NEW BANNER</h4>
                 <input type="file" accept="image/*" onchange="handleImageUpload(event,'banner')" style="margin-bottom:0.75rem;">
-                <div style="text-align:center;margin:0.75rem 0;color:var(--text-muted);font-size:0.8rem;">Ã¢â‚¬â€ OR Ã¢â‚¬â€</div>
+                <div style="text-align:center;margin:0.75rem 0;color:var(--text-muted);font-size:0.8rem;">— OR —</div>
                 <div class="form-group">
                     <label>Image URL</label>
                     <input type="text" value="${bannerImage}" onchange="updateBannerUrl(this.value)" placeholder="https://...">
@@ -1152,7 +1118,7 @@ function deleteFeedback(id) {
 // ================================
 // FEEDBACK MODAL
 // ================================
-function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('hidden'); }
+function openFeedbackModal() { document.getElementById('feedback-modal').classList.remove('hidden'); pushHistory('feedback', {}); }
 function closeFeedbackModal() {
     document.getElementById('feedback-modal').classList.add('hidden');
     document.getElementById('feedback-form').reset();
@@ -1182,6 +1148,7 @@ function openImageViewer(url, name) {
     document.getElementById('viewer-image').src = url;
     currentZoom = 100;
     modal.classList.remove('hidden');
+    pushHistory('imageViewer', { url, name });
 }
 
 function closeImageViewer() { document.getElementById('image-viewer-modal').classList.add('hidden'); }
@@ -1209,7 +1176,7 @@ function showToast(message, type = 'info') {
 // ================================
 // INITIALIZATION
 // ================================
-window.onload = () => {
+document.addEventListener('DOMContentLoaded', () => {
     checkAuthState();
     loadProductsFromFirestore();
     updatePinnedBadge();
@@ -1221,5 +1188,146 @@ window.onload = () => {
     document.getElementById('feedback-modal').addEventListener('click', (e) => { if (e.target.id === 'feedback-modal') closeFeedbackModal(); });
     document.getElementById('image-viewer-modal').addEventListener('click', (e) => { if (e.target.id === 'image-viewer-modal') closeImageViewer(); });
 
-    console.log('Ã°Å¸ÂªÂµ Shri Vishwakarma Wood Works Ã¢â‚¬â€ Loaded');
-};
+    console.log('Ã°Å¸ÂªÂµ Shri Vishwakarma Wood Works — Loaded');
+})
+
+// ================================
+// HISTORY / BACK BUTTON (mobile)
+// ================================
+// Push a state whenever we open a modal/overlay so Android back closes it
+// instead of exiting the site.
+
+function pushHistory(stateType, data) {
+    history.pushState({ modalType: stateType, data: data }, '');
+}
+
+window.addEventListener('popstate', function(e) {
+    const state = e.state;
+    if (!state || !state.modalType) return;
+
+    switch (state.modalType) {
+        case 'productDetail':
+            closeProductDetail();
+            break;
+        case 'viewAll':
+            // Close any open .modal at top of stack
+            closeTopModal();
+            break;
+        case 'pinned':
+            closeTopModal();
+            break;
+        case 'feedback':
+            closeFeedbackModal();
+            break;
+        case 'admin':
+            closeAdminModal();
+            break;
+        case 'imageViewer':
+            closeImageViewer();
+            break;
+        default:
+            break;
+    }
+});
+
+function closeTopModal() {
+    const modals = document.querySelectorAll('.modal:not(.hidden)');
+    if (modals.length > 0) {
+        const top = modals[modals.length - 1];
+        top.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+// ================================
+// BLUR-UP THUMBNAIL LOADING
+// ================================
+// Generate a tiny placeholder URL from the original image URL.
+// For Unsplash URLs we request w=40&q=20 for instant blur thumbnail.
+// For Firebase Storage or other URLs we use the same URL (graceful fallback).
+
+function getThumbnailUrl(originalUrl) {
+    if (!originalUrl) return originalUrl;
+    try {
+        if (originalUrl.includes('unsplash.com')) {
+            const url = new URL(originalUrl);
+            url.searchParams.set('w', '40');
+            url.searchParams.set('q', '20');
+            url.searchParams.set('blur', '10');
+            return url.toString();
+        }
+        // For Firebase Storage: use original (no built-in resize)
+        // You can add Firebase image resizing extension later for true thumbs
+        return originalUrl;
+    } catch(e) {
+        return originalUrl;
+    }
+}
+
+// Replaces lazyLoadImage with blur-up version
+function lazyLoadImageBlurUp(img) {
+    const src = img.dataset.src;
+    if (!src) return;
+
+    const container = img.closest('.product-image-container');
+    if (container) container.classList.add('skeleton-loading');
+
+    const thumbSrc = getThumbnailUrl(src);
+
+    // Phase 1: load tiny blurred thumbnail instantly
+    const thumbImg = new Image();
+    thumbImg.onload = () => {
+        img.src = thumbSrc;
+        img.classList.add('thumb-loaded');
+        if (container) container.classList.remove('skeleton-loading');
+
+        // Phase 2: load full resolution in background
+        const fullImg = new Image();
+        fullImg.onload = () => {
+            img.src = src;
+            img.classList.remove('thumb-loaded');
+            img.classList.add('full-loaded');
+        };
+        fullImg.onerror = () => {
+            // thumbnail is fine, just stay on it
+            img.classList.remove('thumb-loaded');
+            img.classList.add('full-loaded');
+        };
+        fullImg.src = src;
+    };
+    thumbImg.onerror = () => {
+        // Skip thumbnail, load full directly
+        const fullImg = new Image();
+        fullImg.onload = () => {
+            img.src = src;
+            img.classList.add('full-loaded');
+            if (container) container.classList.remove('skeleton-loading');
+        };
+        fullImg.onerror = () => {
+            img.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 400 300"><rect fill="%23f5f5f4" width="400" height="300"/><text fill="%23aaa" font-size="14" x="50%" y="50%" dominant-baseline="middle" text-anchor="middle">Image not available</text></svg>';
+            img.classList.add('full-loaded');
+            if (container) container.classList.remove('skeleton-loading');
+        };
+        if (container) container.classList.remove('skeleton-loading');
+        fullImg.src = src;
+    };
+    thumbImg.src = thumbSrc;
+}
+
+// Override initLazyLoading to use blur-up version
+function initLazyLoading() {
+    const images = document.querySelectorAll('img[data-src]');
+    if ('IntersectionObserver' in window) {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    lazyLoadImageBlurUp(entry.target);
+                    observer.unobserve(entry.target);
+                }
+            });
+        }, { rootMargin: '300px' }); // larger margin = earlier load
+        images.forEach(img => observer.observe(img));
+    } else {
+        images.forEach(lazyLoadImageBlurUp);
+    }
+}
