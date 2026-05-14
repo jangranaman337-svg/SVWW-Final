@@ -5,14 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="Shri Vishwakarma Wood Works — Crafting premium wooden furniture. Beds, wardrobes, kitchens, doors and more. Based in Songal, Kaithal, Haryana.">
     <title>Shri Vishwakarma Wood Works - Gallery & Portfolio</title>
+    <meta name="theme-color" content="#b45309">
     
-<body style="text-align:center; font-family:sans-serif; margin-top:50px;">
-  <h1>⚙️ Site Under Maintenance</h1>
-  <p>We’re making improvements. Please check back soon.</p>
-    <p>This website is just a prototype for now</p>
-</body>
 
     <link rel="stylesheet" href="styles.css">
+    <noscript><style>body{display:flex;align-items:center;justify-content:center;min-height:100vh;font-family:sans-serif;}</style><div style="text-align:center;padding:2rem"><h2>JavaScript Required</h2><p>Please enable JavaScript to use this website.</p></div></noscript>
     <link rel="stylesheet" href="https://unpkg.com/cropperjs@1.6.1/dist/cropper.min.css">
 
     <!-- Firebase SDK -->
@@ -158,11 +155,11 @@
                             <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                             jangranaman337@gmail.com
                         </a>
-                        <a href="https://maps.app.goo.gl/Dn8Dgt9fHRQPq3QDA" target="_blank" class="footer-link">
+                        <a href="https://maps.app.goo.gl/Dn8Dgt9fHRQPq3QDA" target="_blank" rel="noopener noreferrer" class="footer-link">
                             <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
                             Songal, Kaithal, Haryana - 136027
                         </a>
-                        <a href="https://www.instagram.com/shrivishwakarmawoodworks" target="_blank" class="footer-link">
+                        <a href="https://www.instagram.com/shrivishwakarmawoodworks" target="_blank" rel="noopener noreferrer" class="footer-link">
                             <svg class="icon-small" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="2" width="20" height="20" rx="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>
                             @shrivishwakarmawoodworks
                         </a>
@@ -241,13 +238,10 @@
     <!-- ===== IMAGE VIEWER MODAL ===== -->
     <div id="image-viewer-modal" class="modal hidden">
         <div class="image-viewer-content">
-            <div class="image-viewer-header">'
-                <button onclick="exitFullscreen()" class="icon-btn" title="Exit Fullscreen">✖</button>
-            </div>
+            <div class="image-viewer-header">
                 <h3 id="image-viewer-title"></h3>
                 <div class="image-viewer-controls">
                     <button onclick="downloadImage()" class="icon-btn" title="Download">⬇</button>
-                    <button onclick="openFullscreen()" class="icon-btn" title="Fullscreen">⛶</button>
                     <button onclick="closeImageViewer()" class="close-btn">&times;</button>
                 </div>
             </div>
