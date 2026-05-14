@@ -529,7 +529,7 @@ nav { display: none; }
 .product-detail-modal {
     position: fixed;
     inset: 0;
-    z-index: 1000;
+    z-index: 300;
     background: rgba(0,0,0,0.6);
     display: flex;
     align-items: flex-end;
@@ -801,7 +801,7 @@ nav { display: none; }
 .modal {
     position: fixed;
     inset: 0;
-    z-index: 2000;
+    z-index: 200;
     background: rgba(0,0,0,0.5);
     display: flex;
     align-items: center;
@@ -860,10 +860,6 @@ nav { display: none; }
 /* ================================
    IMAGE VIEWER
 ================================ */
-#image-viewer-modal {
-  z-index: 3000 !important;
-}
-``
 .image-viewer-content {
     background: #111;
     border-radius: var(--radius);
@@ -981,7 +977,7 @@ nav { display: none; }
 .toast.success { background: #059669; }
 .toast.error { background: #dc2626; }
 .toast.info { background: #0284c7; }
-.toast { background: var(--secondary); }
+.toast.default { background: var(--secondary); }
 
 /* ================================
    EMPTY STATE
@@ -1011,3 +1007,41 @@ nav { display: none; }
 =============================== */
 .text-center { text-align: center; }
 .p-4 { padding: 1rem; }
+
+/* ================================
+   THUMBNAIL BLUR-UP (fast load)
+================================ */
+.product-image.thumb-loaded {
+    opacity: 1;
+    filter: blur(8px);
+    transform: scale(1.02);
+    transition: filter 0.4s ease, transform 0.4s ease, opacity 0.2s ease;
+}
+.product-image.full-loaded {
+    opacity: 1;
+    filter: blur(0);
+    transform: scale(1);
+}
+
+/* ================================
+   ACCESSIBILITY
+================================ */
+:focus-visible {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
+}
+button:focus-visible, a:focus-visible {
+    outline: 2px solid var(--primary-light);
+    outline-offset: 2px;
+    border-radius: 4px;
+}
+
+/* ================================
+   iOS SAFE AREA
+================================ */
+#toast-container {
+    padding-bottom: env(safe-area-inset-bottom, 0);
+}
+.footer {
+    padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0));
+}
